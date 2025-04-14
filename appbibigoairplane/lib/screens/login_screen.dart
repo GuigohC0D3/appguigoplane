@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,12 +13,26 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  bool obscurePassword = true;
 
   void login() {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
     if (formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login realizado com sucesso!')),
-      );
+      if (email == 'teste@bibigo.com' && password == '123456') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email ou senha inválidos.')),
+        );
+      }
     }
   }
 
@@ -100,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: passwordController,
                       style: const TextStyle(color: Colors.white),
+                      obscureText: obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'PASSWORD',
                         labelStyle: const TextStyle(color: Colors.white),
@@ -114,8 +130,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white, width: 2),
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
                       validator:
                           (value) =>
                               value != null && value.length >= 6
@@ -179,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // 👉 Botão para ir à tela de cadastro
+                    // Botão para ir à tela de cadastro
                     TextButton(
                       onPressed: () {
                         Navigator.push(

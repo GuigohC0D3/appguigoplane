@@ -61,6 +61,8 @@ flutter:
     - assets/img/bibigoairplane.png
     - assets/img/bibigoairplanee.png
     - assets/img/airport_background.jpg
+    - assets/img/avatar.png
+    - assets/img/amazonia.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
