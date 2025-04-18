@@ -1,14 +1,26 @@
-import 'package:appbibigoairplane/screens/welcome_screen.dart';
+import 'package:flutter/foundation.dart'; // para verificar se é Web
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
-  runApp(AeroApp());
+import 'firebase_options.dart'; // gerado pelo flutterfire configure
+import 'package:appbibigoairplane/screens/welcome_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.web,
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
+
+  runApp(const AeroApp());
 }
 
 class AeroApp extends StatelessWidget {
-  // Removido o `const` do construtor
-  const AeroApp({Key? key}) : super(key: key);  // Adicionado o parâmetro key
+  const AeroApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +28,7 @@ class AeroApp extends StatelessWidget {
       title: 'AeroPassagens',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        inputDecorationTheme: InputDecorationTheme(
+        inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
         ),
       ),

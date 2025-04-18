@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -56,8 +57,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
-  void register() {
-    final password = passwordController.text;
+  Future<void> register() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
     if (formKey.currentState!.validate()) {
       if (passwordStrengthLabel == 'Fraca' || passwordStrengthLabel == 'Média') {
@@ -67,9 +69,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Conta criada com sucesso!')),
-      );
+      try {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Conta criada com sucesso!')),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      } on FirebaseAuthException catch (e) {
+        String message = 'Erro ao criar conta.';
+        if (e.code == 'email-already-in-use') {
+          message = 'Email já está em uso.';
+        } else if (e.code == 'invalid-email') {
+          message = 'Email inválido.';
+        } else if (e.code == 'weak-password') {
+          message = 'Senha fraca.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
     }
   }
 
