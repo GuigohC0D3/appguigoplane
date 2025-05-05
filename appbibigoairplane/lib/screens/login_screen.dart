@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
@@ -14,24 +15,41 @@ class _LoginScreenState extends State<LoginScreen> {
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool obscurePassword = true;
+  bool isLoading = false; // Nova flag de carregamento
 
-  void login() {
+  Future<void> login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
     if (formKey.currentState!.validate()) {
-      if (email == 'teste@bibigo.com' && password == '123456') {
+      setState(() => isLoading = true); // Mostra carregamento
+
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login realizado com sucesso!')),
         );
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
-      } else {
+      } on FirebaseAuthException catch (e) {
+        String message = 'Usuario ou Senha incorretos.';
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Email ou senha inválidos.')),
+          const SnackBar(content: Text('Erro inesperado. Tente novamente.')),
         );
+      } finally {
+        setState(() => isLoading = false); // Oculta carregamento
       }
     }
   }
@@ -70,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
 
                     // Título
-                    Center(
+                    const Center(
                       child: Text(
                         'AeroPassagens',
                         style: TextStyle(
@@ -92,9 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelStyle: const TextStyle(color: Colors.white),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
-                        border: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
+                        border: const OutlineInputBorder(),
                         enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
                         ),
@@ -121,9 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelStyle: const TextStyle(color: Colors.white),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.2),
-                        border: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
+                        border: const OutlineInputBorder(),
                         enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
                         ),
@@ -154,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Botão LOGIN
                     ElevatedButton(
-                      onPressed: login,
+                      onPressed: isLoading ? null : login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
@@ -163,14 +177,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'LOGIN',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                      child:
+                          isLoading
+                              ? const CircularProgressIndicator(
+                                color: Colors.black,
+                              )
+                              : const Text(
+                                'LOGIN',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Esqueceu a senha?
                     TextButton(
                       onPressed: () {},
                       child: const Text(
@@ -191,7 +209,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
 
-                    // Facebook login
                     ElevatedButton.icon(
                       onPressed: () {},
                       icon: const Icon(Icons.facebook),
@@ -207,7 +224,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Botão para ir à tela de cadastro
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -218,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: const Text(
-                        "Don't have an account? Sign up",
+                        "Você não tem uma conta? Cadastre-se",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

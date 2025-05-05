@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "953453969755",
+    "project_id": "bibigoairplane",
+    "storage_bucket": "bibigoairplane.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953453969755:android:fa5c53a4318f1a6cecda7e",
+        "android_client_info": {
+          "package_name": "com.example.appbibigoairplane"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZGvG95c3YdEOtH2tPbttwqb_4cqrUao4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
