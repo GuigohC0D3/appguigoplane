@@ -151,7 +151,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      'BLUE-SKY',
+                      'BIBIGO-AIRLINE',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
