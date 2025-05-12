@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'profile_screen.dart';
+import '../services/amadeus_service.dart';
+import '../utils/cidades_iata.dart';
+import 'flight_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,11 +12,18 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   String userName = "Visitante";
   bool isLoading = true;
   bool _visible = false;
   int _selectedIndex = 0;
+
+  final _searchController = TextEditingController();
+  final AmadeusService _amadeusService = AmadeusService();
+
+  List<dynamic> _airports = [];
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -37,29 +47,54 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     await _loadUser();
   }
 
+  Future<void> _searchAirports(String input) async {
+    final keyword = cidadeParaIATACode[input.toLowerCase().trim()] ?? input;
+
+    setState(() {
+      _isSearching = true;
+      _airports = [];
+    });
+
+    try {
+      final results = await _amadeusService.searchAirports(keyword);
+      setState(() {
+        _airports = results;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao buscar: $e')));
+    } finally {
+      setState(() {
+        _isSearching = false;
+      });
+    }
+  }
+
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Logout'),
-        content: const Text('Você realmente deseja sair da sua conta?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirmar Logout'),
+            content: const Text('Você realmente deseja sair da sua conta?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await FirebaseAuth.instance.signOut();
+                  if (mounted) {
+                    Navigator.pushReplacementNamed(context, '/login');
+                  }
+                },
+                child: const Text('Sair'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await FirebaseAuth.instance.signOut();
-              if (mounted) {
-                Navigator.pushReplacementNamed(context, '/login');
-              }
-            },
-            child: const Text('Sair'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -68,31 +103,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FA),
       body: SafeArea(
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
-          onRefresh: _handleRefresh,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 24),
-            child: AnimatedOpacity(
-              opacity: _visible ? 1 : 0,
-              duration: const Duration(milliseconds: 500),
-              child: AnimatedSlide(
-                offset: _visible ? Offset.zero : const Offset(0, 0.1),
-                duration: const Duration(milliseconds: 500),
-                child: Column(
-                  children: [
-                    _buildHeader(),
-                    _buildSearchSection(),
-                    const SizedBox(height: 24),
-                    _buildPromoCard(),
-                  ],
+        child:
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                  onRefresh: _handleRefresh,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: AnimatedOpacity(
+                      opacity: _visible ? 1 : 0,
+                      duration: const Duration(milliseconds: 500),
+                      child: AnimatedSlide(
+                        offset: _visible ? Offset.zero : const Offset(0, 0.1),
+                        duration: const Duration(milliseconds: 500),
+                        child: Column(
+                          children: [
+                            _buildHeader(),
+                            _buildSearchSection(),
+                            const SizedBox(height: 24),
+                            _buildAirportSearchSection(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ),
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
     );
@@ -112,9 +148,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             onSelected: (value) {
               if (value == 'logout') _showLogoutDialog();
             },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'logout', child: Text('Sair')),
-            ],
+            itemBuilder:
+                (context) => const [
+                  PopupMenuItem(value: 'logout', child: Text('Sair')),
+                ],
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -150,11 +187,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00A896),
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: const Text(
                 'Procure',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -163,91 +205,59 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildPromoCard() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8EBF2),
-        borderRadius: BorderRadius.circular(24),
-      ),
+  Widget _buildAirportSearchSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              children: [
-                Image.asset(
-                  'assets/img/amazonia.png',
-                  width: double.infinity,
-                  height: 160,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  bottom: 12,
-                  left: 16,
-                  child: Text(
-                    'AMAZÔNIA',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.7),
-                          offset: const Offset(1, 1),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF00C896),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        bottomRight: Radius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      '20% de Desconto!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.flight),
+              hintText: "Buscar aeroporto...",
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
             ),
+            onSubmitted: (value) => _searchAirports(value),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'BIBIGO-AIRLINE',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF333333)),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Nossa plataforma simplifica a reserva de voos, hotéis e passeios. '
-                'Basta alguns cliques para garantir sua viagem dos sonhos. '
-                'O melhor? Oferecemos opções para todos os orçamentos!',
-            style: TextStyle(color: Colors.black87, fontSize: 13),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Nossos guias locais compartilham dicas exclusivas e roteiros personalizados '
-                'para tornar sua viagem inesquecível.',
-            style: TextStyle(color: Colors.black87, fontSize: 13),
-          ),
+          const SizedBox(height: 16),
+          if (_isSearching)
+            const Center(child: CircularProgressIndicator())
+          else
+            _buildResultsList(),
         ],
       ),
+    );
+  }
+
+  Widget _buildResultsList() {
+    if (_airports.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Text("Nenhum aeroporto encontrado."),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _airports.length,
+      itemBuilder: (context, index) {
+        final item = _airports[index];
+        return Card(
+          child: ListTile(
+            leading: const Icon(Icons.flight_takeoff),
+            title: Text(item['name'] ?? 'Sem nome'),
+            subtitle: Text(item['iataCode'] ?? 'Sem código'),
+          ),
+        );
+      },
     );
   }
 
@@ -275,6 +285,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
         setState(() => _selectedIndex = index);
+        if (index == 1) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FlightSearchScreen()),
+          );
+        }
+        
         if (index == 3) {
           Navigator.push(
             context,
