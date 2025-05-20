@@ -1,23 +1,20 @@
-import 'package:flutter/foundation.dart'; // para verificar se é Web
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-import 'firebase_options.dart'; // gerado pelo flutterfire configure
-import 'package:appbibigoairplane/screens/welcome_screen.dart';
-import 'package:appbibigoairplane/screens/login_screen.dart';
-import 'package:appbibigoairplane/screens/home_screen.dart';
-import 'package:appbibigoairplane/screens/profile_screen.dart'; // se já existir
+import 'screens/preloading_screen.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (kIsWeb) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.web,
-    );
-  } else {
-    await Firebase.initializeApp();
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const AeroApp());
 }
@@ -28,20 +25,20 @@ class AeroApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'AeroPassagens',
       debugShowCheckedModeBanner: false,
+      title: 'BibigoAirplane',
       theme: ThemeData(
-        primarySwatch: Colors.teal,
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-        ),
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: const Color(0xFFF7F9FA),
+        fontFamily: 'Montserrat',
       ),
-      initialRoute: '/welcome',
+      initialRoute: '/preloading',
       routes: {
+        '/preloading': (context) => const PreloadingScreen(),
         '/welcome': (context) => const WelcomeScreen(),
-        '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
-        '/profile': (context) => const ProfileScreen(), // opcional
+        '/login': (context) => const LoginScreen(),
+        '/profile': (context) => const ProfileScreen(),
       },
     );
   }

@@ -10,73 +10,47 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
-  bool obscurePassword = true;
-  bool obscureConfirm = true;
-  String passwordStrengthLabel = '';
-  Color passwordStrengthColor = Colors.transparent;
+  final _nameController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _birthDateController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _cepController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _numberController = TextEditingController();
+  final _complementController = TextEditingController();
+  final _neighborhoodController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _promoCodeController = TextEditingController();
 
-  void updatePasswordStrength(String password) {
-    int strength = 0;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
 
-    if (password.length >= 6) strength++;
-    if (password.contains(RegExp(r'[A-Z]'))) strength++;
-    if (password.contains(RegExp(r'[0-9]'))) strength++;
-    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) strength++;
-
-    String label;
-    Color color;
-
-    switch (strength) {
-      case 0:
-      case 1:
-        label = 'Fraca';
-        color = Colors.red;
-        break;
-      case 2:
-        label = 'Média';
-        color = Colors.orange;
-        break;
-      case 3:
-        label = 'Forte';
-        color = Colors.blue;
-        break;
-      default:
-        label = 'Muito Forte';
-        color = Colors.green;
-    }
-
-    setState(() {
-      passwordStrengthLabel = label;
-      passwordStrengthColor = color;
-    });
-  }
-
-  Future<void> register() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (formKey.currentState!.validate()) {
-      if (passwordStrengthLabel == 'Fraca' || passwordStrengthLabel == 'Média') {
+  Future<void> _register() async {
+    if (_formKey.currentState!.validate()) {
+      if (!_acceptTerms) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sua senha está $passwordStrengthLabel. Por favor, insira uma senha mais forte.')),
+          const SnackBar(
+            content: Text('Você deve aceitar os termos e condições.'),
+          ),
         );
         return;
       }
 
       try {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: email,
-          password: password,
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
         );
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Conta criada com sucesso!')),
+          const SnackBar(content: Text('Cadastro realizado com sucesso!')),
         );
 
         Navigator.pushReplacement(
@@ -93,185 +67,242 @@ class _RegisterScreenState extends State<RegisterScreen> {
           message = 'Senha fraca.';
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
     }
+  }
+
+  InputDecoration _inputDecoration(String label, {Widget? suffixIcon}) {
+    return InputDecoration(
+      labelText: label,
+      border: const OutlineInputBorder(),
+      suffixIcon: suffixIcon,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.asset(
-              'assets/img/airport_background.jpg',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withOpacity(0.2)),
-          ),
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Center(
-                      child: Image.asset(
-                        'assets/img/bibigoairplane.png',
-                        width: 100,
-                        height: 100,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        'AeroPassagens',
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontFamily: 'Cursive',
+      appBar: AppBar(
+        title: const Text('Cadastro'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        backgroundColor: const Color(0xFF094067),
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              ExpansionTile(
+                title: const Text('Informações Pessoais'),
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: _inputDecoration('Nome Completo'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _cpfController,
+                    decoration: _inputDecoration('CPF'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _birthDateController,
+                    decoration: _inputDecoration('Data de Nascimento'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _phoneController,
+                    decoration: _inputDecoration('Telefone'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                ],
+              ),
+              ExpansionTile(
+                title: const Text('Informações de Endereço'),
+                children: [
+                  TextFormField(
+                    controller: _cepController,
+                    decoration: _inputDecoration('CEP'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _addressController,
+                    decoration: _inputDecoration('Endereço'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _numberController,
+                    decoration: _inputDecoration('Número'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _complementController,
+                    decoration: _inputDecoration('Complemento'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _neighborhoodController,
+                    decoration: _inputDecoration('Bairro'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _cityController,
+                    decoration: _inputDecoration('Cidade'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _stateController,
+                    decoration: _inputDecoration('Estado'),
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Campo obrigatório'
+                                : null,
+                  ),
+                ],
+              ),
+              ExpansionTile(
+                title: const Text('Informações de Cadastro'),
+                children: [
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: _inputDecoration('Email'),
+                    keyboardType: TextInputType.emailAddress,
+                    validator:
+                        (value) =>
+                            value != null && value.contains('@')
+                                ? null
+                                : 'Email inválido',
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: _obscurePassword,
+                    decoration: _inputDecoration(
+                      'Senha',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                    TextFormField(
-                      controller: nameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputStyle('NAME'),
-                      validator: (value) =>
-                          value != null && value.isNotEmpty ? null : 'Informe seu nome',
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: emailController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: _inputStyle('EMAIL'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) =>
-                          value != null && value.contains('@') ? null : 'Email inválido',
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: passwordController,
-                      onChanged: updatePasswordStrength,
-                      style: const TextStyle(color: Colors.white),
-                      obscureText: obscurePassword,
-                      decoration: _inputStyle(
-                        'PASSWORD',
-                        toggle: IconButton(
-                          icon: Icon(
-                            obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() => obscurePassword = !obscurePassword);
-                          },
-                        ),
-                      ),
-                      validator: (value) =>
-                          value != null && value.length >= 6 ? null : 'Senha muito curta',
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: passwordStrengthColor,
-                              borderRadius: BorderRadius.circular(5),
+                        onPressed:
+                            () => setState(
+                              () => _obscurePassword = !_obscurePassword,
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          passwordStrengthLabel,
-                          style: TextStyle(color: passwordStrengthColor),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: confirmPasswordController,
-                      style: const TextStyle(color: Colors.white),
-                      obscureText: obscureConfirm,
-                      decoration: _inputStyle(
-                        'CONFIRM PASSWORD',
-                        toggle: IconButton(
-                          icon: Icon(
-                            obscureConfirm ? Icons.visibility_off : Icons.visibility,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() => obscureConfirm = !obscureConfirm);
-                          },
-                        ),
-                      ),
-                      validator: (value) =>
-                          value == passwordController.text ? null : 'As senhas não coincidem',
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: register,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'CREATE ACCOUNT',
-                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Já tem conta? Faça login',
-                        style: TextStyle(color: Colors.white),
+                    validator:
+                        (value) =>
+                            value != null && value.length >= 6
+                                ? null
+                                : 'Senha muito curta',
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    decoration: _inputDecoration(
+                      'Confirmar Senha',
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureConfirmPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onPressed:
+                            () => setState(
+                              () =>
+                                  _obscureConfirmPassword =
+                                      !_obscureConfirmPassword,
+                            ),
                       ),
                     ),
-                  ],
+                    validator:
+                        (value) =>
+                            value == _passwordController.text
+                                ? null
+                                : 'As senhas não coincidem',
+                  ),
+                ],
+              ),
+              CheckboxListTile(
+                title: const Text('Aceito os termos e condições'),
+                value: _acceptTerms,
+                onChanged:
+                    (value) => setState(() => _acceptTerms = value ?? false),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _register,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3da9fc),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Cadastre-se na BibigoAirplane',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  InputDecoration _inputStyle(String label, {Widget? toggle}) {
-    return InputDecoration(
-      labelText: label,
-      labelStyle: const TextStyle(color: Colors.white),
-      filled: true,
-      fillColor: Colors.white.withOpacity(0.2),
-      suffixIcon: toggle,
-      border: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white),
-      ),
-      enabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white),
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.white, width: 2),
+        ),
       ),
     );
   }
