@@ -1,104 +1,53 @@
 import 'package:flutter/material.dart';
 
 class OpenMenuWidget extends StatelessWidget {
-  final Function(Locale) onLanguageChanged;
-
-  const OpenMenuWidget({Key? key, required this.onLanguageChanged})
-    : super(key: key);
-
-  void _showLanguageDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Escolha o idioma'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildLanguageTile(context, 'Português', const Locale('pt')),
-                _buildLanguageTile(context, 'English', const Locale('en')),
-                _buildLanguageTile(context, 'Français', const Locale('fr')),
-                _buildLanguageTile(context, 'Italiano', const Locale('it')),
-              ],
-            ),
-          ),
-    );
-  }
-
-  ListTile _buildLanguageTile(
-    BuildContext context,
-    String label,
-    Locale locale,
-  ) {
-    return ListTile(
-      title: Text(label),
-      onTap: () {
-        Navigator.pop(context);
-        onLanguageChanged(locale);
-      },
-    );
-  }
+  const OpenMenuWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       children: [
-        const SizedBox(height: 12),
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text('Idioma'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () => _showLanguageDialog(context),
-        ),
-        const Divider(),
-
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Minha Viagem',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListTile(
-          title: const Text('Fazer check-in'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            // Navegar ou chamar função
-          },
-        ),
-        ListTile(
-          title: const Text('Encontrar reserva'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            // Navegar ou chamar função
-          },
-        ),
-        ListTile(
-          title: const Text('Antecipar voo'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            // Navegar ou chamar função
-          },
-        ),
-        const Divider(),
-
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            'Informações para sua viagem',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListTile(
-          title: const Text('Alteração e Cancelamento'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            // Navegar ou chamar função
-          },
+        const Text(
+          'Mais opções',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
+        _buildSectionTitle('Minha Viagem'),
+        _buildMenuItem(context, 'Fazer check-in'),
+        _buildMenuItem(context, 'Encontrar reserva'),
+        _buildMenuItem(context, 'Antecipar voo'),
+        const SizedBox(height: 16),
+        _buildSectionTitle('Informações para sua viagem'),
+        _buildMenuItem(context, 'Alteração e Cancelamento'),
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF094067),
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(BuildContext context, String title) {
+    return ListTile(
+      title: Text(title),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: () {
+        Navigator.pop(context); // Fecha o drawer
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('$title clicado')));
+      },
     );
   }
 }

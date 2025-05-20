@@ -179,45 +179,41 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey,
         onTap: (index) {
           if (index == 3) {
-            if (isLoggedIn) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfileScreen()),
-              );
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) =>
+                        isLoggedIn
+                            ? const ProfileScreen()
+                            : const LoginScreen(),
+              ),
+            );
           } else if (index == 4) {
             showModalBottomSheet(
               context: context,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
-              builder:
-                  (_) => OpenMenuWidget(
-                    onLanguageChanged: (locale) {
-                      // Aqui você pode implementar lógica de troca de idioma
-                      print('Idioma trocado para: ${locale.languageCode}');
-                    },
-                  ),
-            );
+              builder: (_) => const OpenMenuWidget(),
+            ).then((_) => setState(() => _checkSession()));
           }
         },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
             label: 'Comprar',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.confirmation_num_outlined),
             label: 'Cartões',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
+          BottomNavigationBarItem(
+            icon: Icon(isLoggedIn ? Icons.person : Icons.login),
+            label: isLoggedIn ? 'Perfil' : 'Login',
+          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
         ],
       ),
     );
