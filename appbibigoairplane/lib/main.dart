@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+// Telas
 import 'screens/preloading_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
@@ -16,11 +17,9 @@ import 'screens/reservation_search_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const AeroApp());
 }
 
@@ -33,9 +32,46 @@ class AeroApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'BibigoAirplane',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: const Color(0xFFF7F9FA),
+        scaffoldBackgroundColor: const Color(0xFFd8eefe),
+        primaryColor: const Color(0xFF3da9fc),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          primary: const Color(0xFF3da9fc),
+          secondary: const Color(0xFF90b4ce),
+          error: const Color(0xFFef4565),
+          background: const Color(0xFFd8eefe),
+          onPrimary: Colors.white,
+        ),
         fontFamily: 'Montserrat',
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF3da9fc),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Color(0xFF5f6c7b)),
+          bodyMedium: TextStyle(color: Color(0xFF5f6c7b)),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF3da9fc),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            textStyle: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        cardTheme: CardTheme(
+          color: Color(0xFFFFFFFF),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: EdgeInsets.symmetric(vertical: 8),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFFFFFFFF),
+          selectedItemColor: Color(0xFF3da9fc),
+          unselectedItemColor: Color(0xFF5f6c7b),
+        ),
       ),
       initialRoute: '/preloading',
       routes: {
@@ -53,8 +89,19 @@ class AeroApp extends StatelessWidget {
               flightClass: 'ECONOMY',
             ),
         '/check-in': (context) => const CheckInScreen(),
-        '/seat-selection': (context) => const SeatSelectionScreen(),
         '/reservation-search': (context) => const ReservationSearchScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/seat-selection') {
+          final args = settings.arguments as Map;
+          return MaterialPageRoute(
+            builder: (context) => SeatSelectionScreen(
+              flight: args['flight'],
+              passenger: args['passenger'],
+            ),
+          );
+        }
+        return null;
       },
     );
   }

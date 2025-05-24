@@ -1,55 +1,105 @@
 import 'package:flutter/material.dart';
-import 'package:book_my_seat/book_my_seat.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../screens/payment_screen.dart';
 
 class SeatSelectionWidget extends StatefulWidget {
-  final Function(List<String>) onSelectedSeatsChanged;
-
-  const SeatSelectionWidget({Key? key, required this.onSelectedSeatsChanged}) : super(key: key);
+  final double seatPrice;
+  const SeatSelectionWidget({super.key, required this.seatPrice});
 
   @override
-  _SeatSelectionWidgetState createState() => _SeatSelectionWidgetState();
+  State<SeatSelectionWidget> createState() => _SeatSelectionWidgetState();
 }
 
 class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
-  late List<List<SeatState>> seatStates;
+  final List<String> selectedSeats = [];
+  final List<String> occupiedSeats = ['2B', '3C', '4A'];
 
-  @override
-  void initState() {
-    super.initState();
-    seatStates = List.generate(
-      10,
-      (_) => List.generate(6, (_) => SeatState.unselected),
-    );
-  }
+  final List<String> rows = ['1', '2', '3', '4', '5', '6'];
+  final List<String> columns = ['A', 'B', 'C', 'D'];
+
+  String seatPath(String type) => 'assets/svg/seat_$type.svg';
 
   @override
   Widget build(BuildContext context) {
-    return SeatLayoutWidget(
-      onSeatStateChanged: (rowIndex, colIndex, updatedSeatState) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Selecionar Assento'),
+        backgroundColor: const Color(0xFF094067),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (var row in rows)
+                  for (var col in columns)
+                    _buildSeat('$row$col'),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Selecionados: ${selectedSeats.join(', ')}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: selectedSeats.isEmpty
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PaymentScreen(
+                            selectedSeats: selectedSeats,
+                            totalAmount: selectedSeats.length * widget.seatPrice,
+                          ),
+                        ),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3da9fc),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text('Confirmar Assentos', style: TextStyle(color: Colors.white)),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSeat(String id) {
+    bool isOccupied = occupiedSeats.contains(id);
+    bool isSelected = selectedSeats.contains(id);
+    String asset;
+
+    if (isOccupied) {
+      asset = seatPath('occupied');
+    } else if (isSelected) {
+      asset = seatPath('selected');
+    } else {
+      asset = seatPath('available');
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (isOccupied) return;
+
         setState(() {
-          seatStates[rowIndex][colIndex] = updatedSeatState;
-        });
-
-        List<String> selectedSeats = [];
-        for (int i = 0; i < seatStates.length; i++) {
-          for (int j = 0; j < seatStates[i].length; j++) {
-            if (seatStates[i][j] == SeatState.selected) {
-              selectedSeats.add('${String.fromCharCode(65 + i)}${j + 1}');
-            }
+          if (isSelected) {
+            selectedSeats.remove(id);
+          } else {
+            selectedSeats.add(id);
           }
-        }
-
-        widget.onSelectedSeatsChanged(selectedSeats);
+        });
       },
-      stateModel: SeatLayoutStateModel(
-        rows: 10,
-        cols: 6,
-        seatSvgSize: 40,
-        pathUnSelectedSeat: 'assets/svg/seat_available.svg',
-        pathSelectedSeat: 'assets/svg/seat_selected.svg',
-        pathSoldSeat: 'assets/svg/seat_occupied.svg',
-        pathDisabledSeat: 'assets/svg/seat_reserved.svg',
-        currentSeatsState: seatStates,
+      child: SizedBox(
+        width: 50,
+        height: 50,
+        child: SvgPicture.asset(asset),
       ),
     );
   }

@@ -14,7 +14,6 @@ class OpenMenuWidget extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         _buildSectionTitle('Minha Viagem'),
-        _buildMenuItem(context, 'Fazer check-in'),
         _buildMenuItem(context, 'Encontrar reserva'),
         _buildMenuItem(context, 'Antecipar voo'),
         const SizedBox(height: 16),

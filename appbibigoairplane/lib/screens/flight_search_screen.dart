@@ -12,6 +12,7 @@ class _FlightSearchState extends State<FlightSearch> {
   final TextEditingController originController = TextEditingController();
   final TextEditingController destinationController = TextEditingController();
   DateTime? selectedDate;
+  DateTime? returnDate;
   int passengers = 1;
   String flightClass = 'Econômica';
 
@@ -28,19 +29,19 @@ class _FlightSearchState extends State<FlightSearch> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (_) => FlightResultsScreen(
-              origin: originController.text,
-              destination: destinationController.text,
-              departureDate: selectedDate!,
-              passengers: passengers,
-              flightClass: flightClass,
-            ),
+        builder: (_) => FlightResultsScreen(
+          origin: originController.text,
+          destination: destinationController.text,
+          departureDate: selectedDate!,
+          returnDate: returnDate,
+          passengers: passengers,
+          flightClass: flightClass,
+        ),
       ),
     );
   }
 
-  Future<void> _selectDate() async {
+  Future<void> _selectDate({required bool isReturn}) async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -50,7 +51,11 @@ class _FlightSearchState extends State<FlightSearch> {
     );
     if (picked != null) {
       setState(() {
-        selectedDate = picked;
+        if (isReturn) {
+          returnDate = picked;
+        } else {
+          selectedDate = picked;
+        }
       });
     }
   }
@@ -91,7 +96,18 @@ class _FlightSearchState extends State<FlightSearch> {
                     : 'Selecionar data',
               ),
               trailing: const Icon(Icons.calendar_today),
-              onTap: _selectDate,
+              onTap: () => _selectDate(isReturn: false),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Data da volta'),
+              subtitle: Text(
+                returnDate != null
+                    ? '${returnDate!.day}/${returnDate!.month}/${returnDate!.year}'
+                    : 'Selecionar data',
+              ),
+              trailing: const Icon(Icons.calendar_today_outlined),
+              onTap: () => _selectDate(isReturn: true),
             ),
             const SizedBox(height: 16),
             Row(
@@ -105,13 +121,9 @@ class _FlightSearchState extends State<FlightSearch> {
                       setState(() => passengers = value);
                     }
                   },
-                  items:
-                      List.generate(10, (index) => index + 1)
-                          .map(
-                            (e) =>
-                                DropdownMenuItem(value: e, child: Text('$e')),
-                          )
-                          .toList(),
+                  items: List.generate(10, (index) => index + 1)
+                      .map((e) => DropdownMenuItem(value: e, child: Text('$e')))
+                      .toList(),
                 ),
               ],
             ),
@@ -127,12 +139,9 @@ class _FlightSearchState extends State<FlightSearch> {
                       setState(() => flightClass = value);
                     }
                   },
-                  items:
-                      ['Econômica', 'Executiva', 'Primeira Classe']
-                          .map(
-                            (e) => DropdownMenuItem(value: e, child: Text(e)),
-                          )
-                          .toList(),
+                  items: ['Econômica', 'Executiva', 'Primeira Classe']
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
                 ),
               ],
             ),
