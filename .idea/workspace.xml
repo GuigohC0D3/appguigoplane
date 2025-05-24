@@ -4,20 +4,17 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment="fix">
-      <change beforePath="$PROJECT_DIR$/.idea/dbnavigator.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dbnavigator.xml" afterDir="false" />
+    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment="some fixes">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/.vscode/settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/profile_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/confirmation_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/confirmation_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_results_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_results_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/payment_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/payment_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/seat_select_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/seat_select_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,25 +50,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;ignore_missing_gitignore&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/tools/dart-sdk&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "ignore_missing_gitignore": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/vitip/StudioProjects/appguigoplane",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.General",
+    "show.migrate.to.gradle.popup": "false"
   }
-}</component>
+}]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -89,7 +86,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746330405000</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1746476502803</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746476502804</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -137,6 +142,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
   </component>
 </project>

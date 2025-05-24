@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -14,6 +13,7 @@ import 'screens/flight_results_screen.dart';
 import 'screens/check_in_screen.dart';
 import 'screens/seat_select_screen.dart';
 import 'screens/reservation_search_screen.dart';
+import 'screens/payment_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,27 +81,42 @@ class AeroApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/profile': (context) => const ProfileScreen(),
         '/flight-search': (context) => const FlightSearch(),
-        '/flight-results': (context) => FlightResultsScreen(
-              origin: '',
-              destination: '',
-              departureDate: DateTime.now(),
-              passengers: 1,
-              flightClass: 'ECONOMY',
-            ),
         '/check-in': (context) => const CheckInScreen(),
         '/reservation-search': (context) => const ReservationSearchScreen(),
       },
       onGenerateRoute: (settings) {
-        if (settings.name == '/seat-selection') {
-          final args = settings.arguments as Map;
-          return MaterialPageRoute(
-            builder: (context) => SeatSelectionScreen(
-              flight: args['flight'],
-              passenger: args['passenger'],
-            ),
-          );
+        switch (settings.name) {
+          case '/flight-results':
+            final args = settings.arguments as Map<String, dynamic>?;
+            return MaterialPageRoute(
+              builder: (_) => FlightResultsScreen(
+                origin: args?['origin'] ?? '',
+                destination: args?['destination'] ?? '',
+                departureDate: args?['departureDate'] ?? DateTime.now(),
+                returnDate: args?['returnDate'],
+                passengers: args?['passengers'] ?? 1,
+                flightClass: args?['flightClass'] ?? 'ECONOMY',
+              ),
+            );
+
+          case '/seat-selection':
+            return MaterialPageRoute(
+              builder: (_) => const SeatSelectionWidget(seatPrice: 100),
+            );
+
+          case '/payment':
+            final args = settings.arguments as Map;
+            return MaterialPageRoute(
+              builder: (_) => PaymentScreen(
+                flight: args['flight'],
+                passenger: args['passenger'],
+                selectedSeats: args['selectedSeats'],
+              ),
+            );
+
+          default:
+            return null;
         }
-        return null;
       },
     );
   }

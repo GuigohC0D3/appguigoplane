@@ -148,7 +148,6 @@ class FlightResultsScreen extends StatelessWidget {
                         ],
                       ),
                       ElevatedButton(
-                        key: ValueKey('comprar-$index'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF3da9fc),
                           foregroundColor: Colors.white,

@@ -4,11 +4,13 @@ import 'home_screen.dart';
 class ConfirmationScreen extends StatelessWidget {
   final List<String> seats;
   final double total;
+  final String reservationCode;
 
   const ConfirmationScreen({
     super.key,
     required this.seats,
     required this.total,
+    required this.reservationCode,
   });
 
   @override
@@ -35,6 +37,15 @@ class ConfirmationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
+                'Código da Reserva: $reservationCode',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF094067),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
                 'Assentos: ${seats.join(', ')}\nTotal: R\$ ${total.toStringAsFixed(2)}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
@@ -45,13 +56,13 @@ class ConfirmationScreen extends StatelessWidget {
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: (_) => const HomeScreen()),
-                    (route) => false,
+                        (route) => false,
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3da9fc),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 ),
                 child: const Text(
                   'Voltar para a Home',
