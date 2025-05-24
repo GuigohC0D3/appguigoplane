@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
+import 'flight_search_screen.dart';
 import '../widgets/open_menu_widget.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,6 +28,11 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         isLoggedIn = true;
         userName = user.email?.split('@')[0] ?? 'Usuário';
+      });
+    } else {
+      setState(() {
+        isLoggedIn = false;
+        userName = 'Visitante';
       });
     }
   }
@@ -160,11 +166,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   children: [
-                    _buildMenuButton(Icons.flight, 'Comprar passagem'),
-                    _buildMenuButton(Icons.check, 'Fazer check-in'),
-                    _buildMenuButton(Icons.search, 'Encontrar reserva'),
-                    _buildMenuButton(Icons.chat, 'Chat online'),
-                    _buildMenuButton(Icons.hotel, 'Hotéis e passeios'),
+                    _buildMenuButton(
+                      Icons.flight,
+                      'Comprar passagem',
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/flight-search');
+                      },
+                    ),
+                    _buildMenuButton(
+                      Icons.check,
+                      'Fazer check-in',
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/check-in');
+                      },
+                    ),
+                    _buildMenuButton(
+                      Icons.search,
+                      'Encontrar reserva',
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/reservation-search');
+                      },
+                    ),
                     _buildMenuButton(Icons.person_add, 'Cadastre-se'),
                   ],
                 ),
@@ -182,11 +204,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder:
-                    (_) =>
-                        isLoggedIn
-                            ? const ProfileScreen()
-                            : const LoginScreen(),
+                builder: (_) => isLoggedIn
+                    ? const ProfileScreen()
+                    : const LoginScreen(),
               ),
             );
           } else if (index == 4) {
@@ -196,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
               ),
               builder: (_) => const OpenMenuWidget(),
-            ).then((_) => setState(() => _checkSession()));
+            ).then((_) => _checkSession());
           }
         },
         items: [
@@ -219,9 +239,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMenuButton(IconData icon, String label) {
+  Widget _buildMenuButton(
+    IconData icon,
+    String label, {
+    VoidCallback? onPressed,
+  }) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF3da9fc),
         padding: const EdgeInsets.symmetric(vertical: 12),

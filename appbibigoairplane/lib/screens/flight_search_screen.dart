@@ -1,41 +1,57 @@
 import 'package:flutter/material.dart';
-import '../services/amadeus_service.dart';
+import 'flight_results_screen.dart';
 
-class FlightSearchScreen extends StatefulWidget {
-  const FlightSearchScreen({super.key});
+class FlightSearch extends StatefulWidget {
+  const FlightSearch({Key? key}) : super(key: key);
 
   @override
-  State<FlightSearchScreen> createState() => _FlightSearchScreenState();
+  State<FlightSearch> createState() => _FlightSearchState();
 }
 
-class _FlightSearchScreenState extends State<FlightSearchScreen> {
-  final _originController = TextEditingController();
-  final _destinationController = TextEditingController();
-  final _dateController = TextEditingController();
+class _FlightSearchState extends State<FlightSearch> {
+  final TextEditingController originController = TextEditingController();
+  final TextEditingController destinationController = TextEditingController();
+  DateTime? selectedDate;
+  int passengers = 1;
+  String flightClass = 'Econômica';
 
-  final _amadeusService = AmadeusService();
-  List<dynamic> _flights = [];
-  bool _loading = false;
-
-  Future<void> _searchFlights() async {
-    setState(() {
-      _loading = true;
-      _flights = [];
-    });
-
-    try {
-      final results = await _amadeusService.searchFlights(
-        origin: _originController.text.trim().toUpperCase(),
-        destination: _destinationController.text.trim().toUpperCase(),
-        departureDate: _dateController.text.trim(),
+  void _searchFlights() {
+    if (originController.text.isEmpty ||
+        destinationController.text.isEmpty ||
+        selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preencha todos os campos obrigatórios')),
       );
-      setState(() => _flights = results);
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Erro: $e")));
-    } finally {
-      setState(() => _loading = false);
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => FlightResultsScreen(
+              origin: originController.text,
+              destination: destinationController.text,
+              departureDate: selectedDate!,
+              passengers: passengers,
+              flightClass: flightClass,
+            ),
+      ),
+    );
+  }
+
+  Future<void> _selectDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now.add(const Duration(days: 1)),
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+      });
     }
   }
 
@@ -43,53 +59,95 @@ class _FlightSearchScreenState extends State<FlightSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Buscar Voos"),
-        backgroundColor: const Color(0xFF00A896),
+        title: const Text('Buscar Passagens'),
+        backgroundColor: const Color(0xFF094067),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
+        child: ListView(
           children: [
             TextField(
-              controller: _originController,
-              decoration: const InputDecoration(labelText: "Origem (ex: GRU)"),
-            ),
-            TextField(
-              controller: _destinationController,
-              decoration: const InputDecoration(labelText: "Destino (ex: GIG)"),
-            ),
-            TextField(
-              controller: _dateController,
-              decoration: const InputDecoration(labelText: "Data (YYYY-MM-DD)"),
+              controller: originController,
+              decoration: const InputDecoration(
+                labelText: 'Origem',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 16),
+            TextField(
+              controller: destinationController,
+              decoration: const InputDecoration(
+                labelText: 'Destino',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Data da ida'),
+              subtitle: Text(
+                selectedDate != null
+                    ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
+                    : 'Selecionar data',
+              ),
+              trailing: const Icon(Icons.calendar_today),
+              onTap: _selectDate,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Passageiros:'),
+                const SizedBox(width: 12),
+                DropdownButton<int>(
+                  value: passengers,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => passengers = value);
+                    }
+                  },
+                  items:
+                      List.generate(10, (index) => index + 1)
+                          .map(
+                            (e) =>
+                                DropdownMenuItem(value: e, child: Text('$e')),
+                          )
+                          .toList(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Classe:'),
+                const SizedBox(width: 12),
+                DropdownButton<String>(
+                  value: flightClass,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => flightClass = value);
+                    }
+                  },
+                  items:
+                      ['Econômica', 'Executiva', 'Primeira Classe']
+                          .map(
+                            (e) => DropdownMenuItem(value: e, child: Text(e)),
+                          )
+                          .toList(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _searchFlights,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00A896),
+                backgroundColor: const Color(0xFF3da9fc),
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text("Buscar Voos"),
+              child: const Text(
+                'Buscar Voos',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
-            const SizedBox(height: 24),
-            _loading
-                ? const CircularProgressIndicator()
-                : Expanded(
-                  child: ListView.builder(
-                    itemCount: _flights.length,
-                    itemBuilder: (context, index) {
-                      final flight = _flights[index];
-                      final price = flight['price']['total'];
-                      final airline = flight['validatingAirlineCodes']?[0];
-                      final duration = flight['itineraries'][0]['duration'];
-                      return Card(
-                        child: ListTile(
-                          title: Text("R\$ $price - $airline"),
-                          subtitle: Text("Duração: $duration"),
-                        ),
-                      );
-                    },
-                  ),
-                ),
           ],
         ),
       ),

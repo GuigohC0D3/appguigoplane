@@ -8,6 +8,11 @@ import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/flight_search_screen.dart';
+import 'screens/flight_results_screen.dart';
+import 'screens/check_in_screen.dart';
+import 'screens/seat_select_screen.dart';
+import 'screens/reservation_search_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,6 +44,17 @@ class AeroApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/flight-search': (context) => const FlightSearch(),
+        '/flight-results': (context) => FlightResultsScreen(
+              origin: '',
+              destination: '',
+              departureDate: DateTime.now(),
+              passengers: 1,
+              flightClass: 'ECONOMY',
+            ),
+        '/check-in': (context) => const CheckInScreen(),
+        '/seat-selection': (context) => const SeatSelectionScreen(),
+        '/reservation-search': (context) => const ReservationSearchScreen(),
       },
     );
   }
