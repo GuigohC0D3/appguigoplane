@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'boarding_pass.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
@@ -200,21 +201,31 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: 0,
         selectedItemColor: const Color(0xFF094067),
         unselectedItemColor: Colors.grey,
-        onTap: (index) {
+        onTap: (index) async {
           switch (index) {
             case 0:
-            // Home
               break;
             case 1:
               Navigator.pushNamed(context, '/flight-search');
               break;
             case 2:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const BoardingPassScreen(),
-                ),
-              );
+              final prefs = await SharedPreferences.getInstance();
+              final hasReserva = prefs.containsKey('ultima_reserva');
+              if (hasReserva) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BoardingPassScreen()),
+                );
+              } else {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Você ainda não possui um cartão de embarque.'),
+                    backgroundColor: Colors.orange,
+                    duration: Duration(seconds: 3),
+                  ),
+                );
+              }
               break;
             case 3:
               Navigator.push(
@@ -237,17 +248,10 @@ class _HomeScreenState extends State<HomeScreen> {
               break;
           }
         },
-
         items: [
           const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Comprar',
-          ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.confirmation_num_outlined),
-            label: 'Cartões',
-          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.shopping_bag), label: 'Comprar'),
+          const BottomNavigationBarItem(icon: Icon(Icons.confirmation_num_outlined), label: 'Cartões'),
           BottomNavigationBarItem(
             icon: Icon(isLoggedIn ? Icons.person : Icons.login),
             label: isLoggedIn ? 'Perfil' : 'Login',
@@ -258,11 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMenuButton(
-    IconData icon,
-    String label, {
-    VoidCallback? onPressed,
-  }) {
+  Widget _buildMenuButton(IconData icon, String label, {VoidCallback? onPressed}) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

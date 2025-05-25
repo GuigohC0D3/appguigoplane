@@ -51,15 +51,9 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
       MaterialPageRoute(
         builder: (_) => PaymentScreen(
           selectedSeats: selectedSeats,
-<<<<<<< HEAD
-          flight: {
-            'pricePromo': widget.seatPrice, // Corrigido: envia o preço
-          },
-          passenger: {}, // Pode ser preenchido depois
-=======
+
           flight: voo,
           passenger: {}, // pode ser preenchido depois
->>>>>>> 111524e924ccc65a441bfdf8915fd56adcea2cf2
         ),
       ),
     );

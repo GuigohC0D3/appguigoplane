@@ -33,6 +33,7 @@ dependencies:
   intl: ^0.20.2
   firebase_core: ^3.13.0
   firebase_auth: ^5.5.2
+  firebase_storage: ^12.4.5
   cloud_firestore: ^5.6.7
   http: ^0.13.5
   image_picker: ^1.0.4
@@ -77,6 +78,7 @@ flutter:
     - assets/img/svg/seat_occupied.svg
     - assets/img/svg/seat_selected.svg
     - assets/img/svg/seat_reserved.svg
+    - assets/animations/refund_sucess.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -12,245 +13,163 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
-
-  File? _profileImage;
-  File? _bannerImage;
-
-  final _formKey = GlobalKey<FormState>();
-  final _addressController = TextEditingController();
-
-  String? name;
-  String? email;
-  String? uid;
-  bool loading = true;
+  File? _imageFile;
+  String? _downloadURL;
+  final picker = ImagePicker();
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadProfilePhoto();
   }
 
-  Future<void> _loadUserData() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      uid = user.uid;
-      email = user.email;
-
-      try {
-        final doc = await _firestore.collection('users').doc(uid).get();
-        final data = doc.data();
-
-        if (data != null) {
-          name = data['name'] ?? 'Sem nome';
-          _addressController.text = data['address'] ?? '';
-        } else {
-          name = 'Usuário';
-        }
-      } catch (e) {
-        print('Erro ao carregar dados do usuário: $e');
-        name = 'Erro ao carregar';
-      }
-
-      if (mounted) {
-        setState(() => loading = false);
-      }
+  Future<void> _loadProfilePhoto() async {
+    if (user?.photoURL != null) {
+      setState(() {
+        _downloadURL = user!.photoURL;
+      });
     }
   }
 
-  Future<void> _saveAddress() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        await _firestore.collection('users').doc(uid).update({
-          'address': _addressController.text.trim(),
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Endereço atualizado com sucesso!")),
-        );
-      } catch (e) {
-        print('Erro ao salvar endereço: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erro ao salvar endereço")),
-        );
-      }
+  Future<void> _pickImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      await _uploadImage();
     }
   }
 
-  Future<void> _pickImage(bool isBanner) async {
+  Future<void> _uploadImage() async {
     try {
-      final picker = ImagePicker();
-      final picked = await picker.pickImage(source: ImageSource.gallery);
-      if (picked != null) {
+      if (user != null && _imageFile != null) {
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('profile_pictures')
+            .child('${user!.uid}.jpg');
+
+        await storageRef.putFile(_imageFile!);
+        final downloadURL = await storageRef.getDownloadURL();
+
         setState(() {
-          if (isBanner) {
-            _bannerImage = File(picked.path);
-          } else {
-            _profileImage = File(picked.path);
-          }
+          _downloadURL = downloadURL;
         });
+
+        await user!.updatePhotoURL(downloadURL);
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user!.uid)
+            .update({'photoURL': downloadURL});
       }
     } catch (e) {
-      print('Erro ao selecionar imagem: $e');
+      print('Erro ao fazer upload da imagem: $e');
     }
   }
 
-  @override
-  void dispose() {
-    _addressController.dispose();
-    super.dispose();
+  Widget _buildProfileHeader() {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: _pickImage,
+          child: CircleAvatar(
+            radius: 50,
+            backgroundImage: _downloadURL != null
+                ? NetworkImage(_downloadURL!)
+                : const AssetImage('assets/avatar_placeholder.png')
+                    as ImageProvider,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          user?.displayName ?? 'Usuário',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          user?.email ?? '',
+          style: const TextStyle(color: Colors.grey),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: _pickImage,
+          icon: const Icon(Icons.camera_alt),
+          label: const Text('Alterar Foto de Perfil'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTravelHistory() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .collection('travel_history')
+          .orderBy('date', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Erro ao carregar histórico.'));
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final trips = snapshot.data!.docs;
+
+        if (trips.isEmpty) {
+          return const Center(child: Text('Nenhuma viagem encontrada.'));
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: trips.length,
+          itemBuilder: (context, index) {
+            final trip = trips[index];
+            return ListTile(
+              leading: const Icon(Icons.flight),
+              title: Text(trip['destination']),
+              subtitle: Text(trip['date']),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF00A896),
         title: const Text('Perfil'),
-        centerTitle: true,
+        backgroundColor: const Color(0xFF094067),
       ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-        children: [
-          // Banner
-          GestureDetector(
-            onTap: () => _pickImage(true),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  height: 180,
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.grey[300]),
-                  child: _bannerImage != null
-                      ? Image.file(_bannerImage!, fit: BoxFit.cover)
-                      : const Center(
-                    child: Text(
-                      "Toque para adicionar banner",
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                  ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            _buildProfileHeader(),
+            const SizedBox(height: 24),
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Histórico de Viagens',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF094067),
                 ),
-                const Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Icon(Icons.edit, color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Foto de Perfil
-          Center(
-            child: GestureDetector(
-              onTap: () => _pickImage(false),
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[400],
-                backgroundImage:
-                _profileImage != null ? FileImage(_profileImage!) : null,
-                child: _profileImage == null
-                    ? const Icon(Icons.person, size: 50, color: Colors.white)
-                    : null,
               ),
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Nome e Email
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  name ?? '',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email ?? '',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Endereço
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Endereço",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Color(0xFF333333),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: _addressController,
-                    decoration: InputDecoration(
-                      hintText: "Digite seu endereço...",
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'O endereço não pode estar vazio.';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.save),
-                      onPressed: _saveAddress,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00A896),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      label: const Text(
-                        "Salvar Endereço",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            _buildTravelHistory(),
+          ],
+        ),
       ),
     );
   }
