@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 // Telas
@@ -14,6 +16,9 @@ import 'screens/check_in_screen.dart';
 import 'screens/seat_select_screen.dart';
 import 'screens/reservation_search_screen.dart';
 import 'screens/payment_screen.dart';
+import 'screens/forgot_password_screen.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +34,7 @@ class AeroApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'BibigoAirplane',
       theme: ThemeData(
@@ -53,19 +59,19 @@ class AeroApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF3da9fc),
+            backgroundColor: const Color(0xFF3da9fc),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
-            textStyle: TextStyle(fontWeight: FontWeight.bold),
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
         cardTheme: CardTheme(
-          color: Color(0xFFFFFFFF),
+          color: const Color(0xFFFFFFFF),
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: EdgeInsets.symmetric(vertical: 8),
+          margin: const EdgeInsets.symmetric(vertical: 8),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           backgroundColor: Color(0xFFFFFFFF),
@@ -73,7 +79,7 @@ class AeroApp extends StatelessWidget {
           unselectedItemColor: Color(0xFF5f6c7b),
         ),
       ),
-      initialRoute: '/preloading',
+      home: const PreloadingScreen(),
       routes: {
         '/preloading': (context) => const PreloadingScreen(),
         '/welcome': (context) => const WelcomeScreen(),
@@ -83,40 +89,41 @@ class AeroApp extends StatelessWidget {
         '/flight-search': (context) => const FlightSearch(),
         '/check-in': (context) => const CheckInScreen(),
         '/reservation-search': (context) => const ReservationSearchScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
       },
       onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/flight-results':
-            final args = settings.arguments as Map<String, dynamic>?;
-            return MaterialPageRoute(
-              builder: (_) => FlightResultsScreen(
-                origin: args?['origin'] ?? '',
-                destination: args?['destination'] ?? '',
-                departureDate: args?['departureDate'] ?? DateTime.now(),
-                returnDate: args?['returnDate'],
-                passengers: args?['passengers'] ?? 1,
-                flightClass: args?['flightClass'] ?? 'ECONOMY',
-              ),
-            );
-
-          case '/seat-selection':
-            return MaterialPageRoute(
-              builder: (_) => const SeatSelectionWidget(seatPrice: 100),
-            );
-
-          case '/payment':
-            final args = settings.arguments as Map;
-            return MaterialPageRoute(
-              builder: (_) => PaymentScreen(
-                flight: args['flight'],
-                passenger: args['passenger'],
-                selectedSeats: args['selectedSeats'],
-              ),
-            );
-
-          default:
-            return null;
+        if (settings.name == '/flight-results') {
+          final args = settings.arguments as Map<String, dynamic>?;
+          return MaterialPageRoute(
+            builder: (_) => FlightResultsScreen(
+              origin: args?['origin'] ?? '',
+              destination: args?['destination'] ?? '',
+              departureDate: args?['departureDate'] ?? DateTime.now(),
+              returnDate: args?['returnDate'],
+              passengers: args?['passengers'] ?? 1,
+              flightClass: args?['flightClass'] ?? 'ECONOMY',
+            ),
+          );
         }
+
+        if (settings.name == '/seat-selection') {
+          return MaterialPageRoute(
+            builder: (_) => const SeatSelectionWidget(seatPrice: 100),
+          );
+        }
+
+        if (settings.name == '/payment') {
+          final args = settings.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (_) => PaymentScreen(
+              flight: args['flight'],
+              passenger: args['passenger'],
+              selectedSeats: args['selectedSeats'],
+            ),
+          );
+        }
+
+        return null;
       },
     );
   }

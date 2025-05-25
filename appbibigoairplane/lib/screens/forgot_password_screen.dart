@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  const ForgotPasswordScreen({Key? key}) : super(key: key);
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -10,96 +9,63 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  bool _isSendingEmail = false;
 
-  Future<void> _sendPasswordResetEmail() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isSendingEmail = true;
-    });
-
-    try {
-      await FirebaseAuth.instance
-          .sendPasswordResetEmail(email: _emailController.text.trim());
-
+  void _sendRecoveryEmail() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Um e-mail de redefinição de senha foi enviado. Verifique sua caixa de entrada.',
-          ),
-        ),
+        const SnackBar(content: Text('Por favor, insira um e-mail válido.')),
       );
-
-      Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      String message = 'Ocorreu um erro. Tente novamente.';
-      if (e.code == 'user-not-found') {
-        message = 'Nenhum usuário encontrado com este e-mail.';
-      } else if (e.code == 'invalid-email') {
-        message = 'E-mail inválido.';
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    } finally {
-      setState(() {
-        _isSendingEmail = false;
-      });
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Um e-mail de recuperação foi enviado para $email.')),
+    );
+
+    Navigator.pop(context); // Volta para a tela anterior (Login)
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFd8eefe),
       appBar: AppBar(
-        title: const Text('Redefinir Senha'),
+        title: const Text('Recuperar Senha'),
         backgroundColor: const Color(0xFF094067),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'Informe seu e-mail para receber um link de redefinição de senha.',
-              style: TextStyle(fontSize: 16),
+              'Digite seu e-mail para receber instruções de recuperação de senha.',
+              style: TextStyle(fontSize: 16, color: Color(0xFF094067)),
             ),
             const SizedBox(height: 20),
-            Form(
-              key: _formKey,
-              child: TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'E-mail',
-                  border: OutlineInputBorder(),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: 'E-mail',
+                labelStyle: const TextStyle(color: Color(0xFF094067)),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Color(0xFF094067)),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu e-mail.';
-                  }
-                  return null;
-                },
               ),
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _isSendingEmail ? null : _sendPasswordResetEmail,
+              onPressed: _sendRecoveryEmail,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3da9fc),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: _isSendingEmail
-                  ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
-                  : const Text(
-                      'Enviar E-mail',
-                      style: TextStyle(fontSize: 16),
-                    ),
+              child: const Text('Enviar'),
             ),
           ],
         ),

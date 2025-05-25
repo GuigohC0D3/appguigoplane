@@ -34,11 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
+      setState(() => _imageFile = File(pickedFile.path));
       await _uploadImage();
     }
   }
@@ -48,16 +45,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (user != null && _imageFile != null) {
         final storageRef = FirebaseStorage.instance
             .ref()
-            .child('profile_pictures')
-            .child('${user!.uid}.jpg');
+            .child('profile_pictures/${user!.uid}.jpg');
 
         await storageRef.putFile(_imageFile!);
         final downloadURL = await storageRef.getDownloadURL();
 
-        setState(() {
-          _downloadURL = downloadURL;
-        });
-
+        setState(() => _downloadURL = downloadURL);
         await user!.updatePhotoURL(downloadURL);
         await FirebaseFirestore.instance
             .collection('users')
@@ -65,109 +58,184 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .update({'photoURL': downloadURL});
       }
     } catch (e) {
-      print('Erro ao fazer upload da imagem: $e');
+      debugPrint('Erro ao fazer upload da imagem: $e');
     }
   }
 
-  Widget _buildProfileHeader() {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: _pickImage,
-          child: CircleAvatar(
-            radius: 50,
-            backgroundImage: _downloadURL != null
-                ? NetworkImage(_downloadURL!)
-                : const AssetImage('assets/avatar_placeholder.png')
-                    as ImageProvider,
+  Future<void> _changeDisplayName() async {
+    final nameController = TextEditingController();
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Editar nome'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: 'Novo nome'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
           ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          user?.displayName ?? 'Usuário',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          user?.email ?? '',
-          style: const TextStyle(color: Colors.grey),
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: _pickImage,
-          icon: const Icon(Icons.camera_alt),
-          label: const Text('Alterar Foto de Perfil'),
-        ),
-      ],
+          ElevatedButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              if (newName.isNotEmpty) {
+                await user?.updateDisplayName(newName);
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(user!.uid)
+                    .update({'displayName': newName});
+                setState(() {});
+              }
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildTravelHistory() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .collection('travel_history')
-          .orderBy('date', descending: true)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Center(child: Text('Erro ao carregar histórico.'));
-        }
+  void _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    if (context.mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }
+  }
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final trips = snapshot.data!.docs;
-
-        if (trips.isEmpty) {
-          return const Center(child: Text('Nenhuma viagem encontrada.'));
-        }
-
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: trips.length,
-          itemBuilder: (context, index) {
-            final trip = trips[index];
-            return ListTile(
-              leading: const Icon(Icons.flight),
-              title: Text(trip['destination']),
-              subtitle: Text(trip['date']),
-            );
-          },
+  void _resetPassword() async {
+    if (user?.email != null) {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: user!.email!);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email de redefinição de senha enviado.')),
         );
-      },
-    );
+      }
+    }
+  }
+
+  String _getDisplayName() {
+    if (user?.displayName != null && user!.displayName!.isNotEmpty) {
+      return user!.displayName!;
+    } else if (user?.email != null) {
+      return user!.email!.split('@').first;
+    } else {
+      return 'Usuário';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeColor = const Color(0xFF094067);
+    final backgroundColor = const Color(0xFFd8eefe);
+
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('Perfil'),
-        backgroundColor: const Color(0xFF094067),
+        title: const Text('Meu Perfil'),
+        backgroundColor: themeColor,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildProfileHeader(),
-            const SizedBox(height: 24),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Histórico de Viagens',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF094067),
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: _downloadURL != null
+                        ? NetworkImage(_downloadURL!)
+                        : const AssetImage('assets/avatar_placeholder.png')
+                    as ImageProvider,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 12),
-            _buildTravelHistory(),
+            const SizedBox(height: 20),
+            Text(
+              _getDisplayName(),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF094067),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              user?.email ?? '',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+
+            /// Botões
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _changeDisplayName,
+                icon: const Icon(Icons.edit),
+                label: const Text('Editar Nome'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: themeColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _resetPassword,
+                icon: const Icon(Icons.lock_reset),
+                label: const Text('Redefinir Senha'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _signOut,
+                icon: const Icon(Icons.logout),
+                label: const Text('Sair da Conta'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

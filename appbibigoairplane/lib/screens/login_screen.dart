@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -30,11 +31,10 @@ class _LoginScreenState extends State<LoginScreen> {
           password: password,
         );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login realizado com sucesso!')),
-        );
-
         if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login realizado com sucesso!')),
+          );
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -49,13 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
         } else if (e.code == 'invalid-email') {
           message = 'Email inválido.';
         }
-
-        debugPrint('Erro FirebaseAuthException: ${e.code} - ${e.message}');
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       } catch (e) {
-        debugPrint('Erro inesperado durante login: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro inesperado: ${e.toString()}')),
         );
@@ -63,6 +58,13 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() => isLoading = false);
       }
     }
+  }
+
+  void loginAsGuest() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
+    );
   }
 
   @override
@@ -75,42 +77,23 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Form(
             key: formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Color(0xFF094067),
-                    ),
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
-                      );
-                    },
+                Image.asset(
+                  'assets/img/bibigoairplane.png',
+                  width: 120,
+                  height: 120,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'BibigoAirplane',
+                  style: TextStyle(
+                    color: Color(0xFF094067),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                Center(
-                  child: Image.asset(
-                    'assets/img/bibigoairplane.png',
-                    width: 120,
-                    height: 120,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                const Center(
-                  child: Text(
-                    'BibigoAirplane',
-                    style: TextStyle(
-                      color: Color(0xFF094067),
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
                 TextFormField(
                   controller: emailController,
                   decoration: InputDecoration(
@@ -149,9 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     fillColor: Colors.white,
                     suffixIcon: IconButton(
                       icon: Icon(
-                        obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+                        obscurePassword ? Icons.visibility_off : Icons.visibility,
                         color: const Color(0xFF094067),
                       ),
                       onPressed: () {
@@ -167,17 +148,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  validator:
-                      (value) =>
-                          value != null && value.length >= 6
-                              ? null
-                              : 'Senha inválida',
+                  validator: (value) =>
+                  value != null && value.length >= 6 ? null : 'Senha inválida',
                 ),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                      );
+                    },
                     child: const Text(
                       'Esqueci minha senha',
                       style: TextStyle(color: Color(0xFF3da9fc)),
@@ -190,34 +173,38 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3da9fc),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child:
-                      isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                            'Entrar',
-                            style: TextStyle(fontSize: 16),
-                          ),
+                  child: isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Entrar', style: TextStyle(fontSize: 16)),
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const RegisterScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Não tem uma Conta BibigoAirplane? Cadastre-se',
-                      style: TextStyle(color: Color(0xFF3da9fc)),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: loginAsGuest,
+                  child: const Text(
+                    'Entrar como convidado',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xFF5f6c7b),
+                      fontWeight: FontWeight.w500,
                     ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                    );
+                  },
+                  child: const Text(
+                    'Não tem uma Conta BibigoAirplane? Cadastre-se',
+                    style: TextStyle(color: Color(0xFF3da9fc)),
                   ),
                 ),
               ],

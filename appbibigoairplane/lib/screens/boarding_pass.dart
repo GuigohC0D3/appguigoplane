@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'cancel_confirmation_screen.dart';
-
 class BoardingPassScreen extends StatefulWidget {
   const BoardingPassScreen({super.key});
 
@@ -152,24 +150,6 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.cancel),
-                label: const Text('Cancelar Passagem'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                ),
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.remove('ultima_reserva');
-                  if (!mounted) return;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CancelConfirmationScreen()),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
             ],
           ),
         ),
