@@ -21,20 +21,37 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
 
   Future<void> _saveLocallyAndProceed() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // 🔁 Aqui você colocará os dados reais do voo selecionado
+    final voo = {
+      'from': 'THE',
+      'to': 'REC',
+      'departureTime': '10:00',
+      'arrivalTime': '12:45',
+      'flightNumber': 'AZ1234',
+      'boardingStart': '09:30',
+      'boardingEnd': '09:55',
+      'terminal': '1',
+      'gate': 'N76F',
+      'date': '22/12',
+    };
+
     final data = {
+      'voo': voo,
       'assentos': selectedSeats,
       'valor': selectedSeats.length * widget.seatPrice,
       'dataSelecao': DateTime.now().toIso8601String(),
     };
-    await prefs.setString('reserva_temp', jsonEncode(data));
+
+    await prefs.setString('ultima_reserva', jsonEncode(data));
 
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => PaymentScreen(
           selectedSeats: selectedSeats,
-          flight: {},
-          passenger: {},
+          flight: voo,
+          passenger: {}, // pode ser preenchido depois
         ),
       ),
     );

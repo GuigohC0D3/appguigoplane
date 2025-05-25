@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'boarding_pass.dart';
 import 'home_screen.dart';
 
 class ConfirmationScreen extends StatelessWidget {
@@ -12,6 +16,24 @@ class ConfirmationScreen extends StatelessWidget {
     required this.total,
     required this.reservationCode,
   });
+
+  Future<void> _openBoardingPass(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('ultima_reserva');
+
+    if (jsonString != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const BoardingPassScreen(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reserva não encontrada.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +72,20 @@ class ConfirmationScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               ElevatedButton(
+                onPressed: () => _openBoardingPass(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3da9fc),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                ),
+                child: const Text(
+                  'Ver Cartão de Embarque',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
                 onPressed: () {
                   Navigator.pushAndRemoveUntil(
                     context,
@@ -59,16 +93,8 @@ class ConfirmationScreen extends StatelessWidget {
                         (route) => false,
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3da9fc),
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                ),
-                child: const Text(
-                  'Voltar para a Home',
-                  style: TextStyle(color: Colors.white),
-                ),
-              )
+                child: const Text('Voltar para a Home'),
+              ),
             ],
           ),
         ),

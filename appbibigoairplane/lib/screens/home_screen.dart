@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'boarding_pass.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
 import 'flight_search_screen.dart';
@@ -200,25 +201,43 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: const Color(0xFF094067),
         unselectedItemColor: Colors.grey,
         onTap: (index) {
-          if (index == 3) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => isLoggedIn
-                    ? const ProfileScreen()
-                    : const LoginScreen(),
-              ),
-            );
-          } else if (index == 4) {
-            showModalBottomSheet(
-              context: context,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              builder: (_) => const OpenMenuWidget(),
-            ).then((_) => _checkSession());
+          switch (index) {
+            case 0:
+            // Home
+              break;
+            case 1:
+              Navigator.pushNamed(context, '/flight-search');
+              break;
+            case 2:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BoardingPassScreen(),
+                ),
+              );
+              break;
+            case 3:
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => isLoggedIn
+                      ? const ProfileScreen()
+                      : const LoginScreen(),
+                ),
+              );
+              break;
+            case 4:
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                builder: (_) => const OpenMenuWidget(),
+              ).then((_) => _checkSession());
+              break;
           }
         },
+
         items: [
           const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           const BottomNavigationBarItem(

@@ -1,7 +1,10 @@
 import 'dart:math';
+import 'dart:convert'; // ✅ Necessário para jsonEncode
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // ✅ Necessário para salvar reserva
 import 'confirmation_screen.dart';
+
 
 class PaymentScreen extends StatefulWidget {
   final List<String> selectedSeats;
@@ -78,9 +81,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
           'validade': expiryController.text,
           'valor': totalAmount,
         },
-        'codigoReserva': reservationCode,
+        'codigoReserva': reservationCode, //
         'dataReserva': DateTime.now().toIso8601String(),
       };
+
+      // Salva localmente
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('ultima_reserva', jsonEncode(reservationData));
 
       Navigator.pushReplacement(
         context,
