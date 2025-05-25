@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 import '../screens/payment_screen.dart';
 
 class SeatSelectionWidget extends StatefulWidget {
   final double seatPrice;
-  const SeatSelectionWidget({super.key, required this.seatPrice});
+  final Map<String, dynamic> flight;
+
+  const SeatSelectionWidget({
+    super.key,
+    required this.seatPrice,
+    required this.flight,
+  });
 
   @override
   State<SeatSelectionWidget> createState() => _SeatSelectionWidgetState();
@@ -48,17 +57,29 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
             ElevatedButton(
               onPressed: selectedSeats.isEmpty
                   ? null
-                  : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PaymentScreen(
-                            selectedSeats: selectedSeats,
-                            totalAmount: selectedSeats.length * widget.seatPrice,
-                          ),
-                        ),
-                      );
-                    },
+                  : () async {
+                final prefs = await SharedPreferences.getInstance();
+
+                final data = {
+                  'voo': widget.flight,
+                  'assentos': selectedSeats,
+                  'valor': selectedSeats.length * widget.seatPrice,
+                  'dataSelecao': DateTime.now().toIso8601String(),
+                };
+
+                await prefs.setString('ultima_reserva', jsonEncode(data));
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentScreen(
+                      selectedSeats: selectedSeats,
+                      flight: widget.flight,
+                      passenger: {},
+                    ),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3da9fc),
                 padding: const EdgeInsets.symmetric(vertical: 16),
