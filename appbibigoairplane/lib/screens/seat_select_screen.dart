@@ -6,6 +6,7 @@ import '../screens/payment_screen.dart';
 
 class SeatSelectionWidget extends StatefulWidget {
   final double seatPrice;
+
   const SeatSelectionWidget({super.key, required this.seatPrice});
 
   @override
@@ -33,8 +34,10 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
       MaterialPageRoute(
         builder: (_) => PaymentScreen(
           selectedSeats: selectedSeats,
-          flight: {},
-          passenger: {},
+          flight: {
+            'pricePromo': widget.seatPrice, // Corrigido: envia o preço
+          },
+          passenger: {}, // Pode ser preenchido depois
         ),
       ),
     );

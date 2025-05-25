@@ -50,8 +50,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   double get totalAmount {
-    final unitPrice = double.tryParse(widget.flight['pricePromo'].toString()) ?? 0.0;
-    return unitPrice * widget.selectedSeats.length;
+    debugPrint('🔍 Flight Data: ${widget.flight}');
+    final priceValue = widget.flight['pricePromo'];
+    if (priceValue is double) {
+      return priceValue * widget.selectedSeats.length;
+    } else if (priceValue is int) {
+      return priceValue.toDouble() * widget.selectedSeats.length;
+    } else if (priceValue is String) {
+      final parsed = double.tryParse(priceValue);
+      return (parsed ?? 0.0) * widget.selectedSeats.length;
+    }
+    return 0.0;
   }
 
   Future<void> _confirmPayment() async {
@@ -188,7 +197,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ],
             const Spacer(),
-            const SizedBox(height: 16),
+
+            // VALOR TOTAL ADICIONADO AQUI
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Total:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'R\$ ${totalAmount.toStringAsFixed(2)}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+
             ElevatedButton(
               onPressed: _loading ? null : _confirmPayment,
               style: ElevatedButton.styleFrom(
@@ -198,17 +225,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               child: _loading
                   ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                ),
-              )
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
                   : const Text(
-                'Finalizar Pagamento',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
+                      'Finalizar Pagamento',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
             ),
           ],
         ),
@@ -220,9 +247,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
 class _CardNumberInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     var text = newValue.text.replaceAll(RegExp(r'\D'), '');
     var newText = '';
     for (int i = 0; i < text.length; i++) {
@@ -239,9 +266,9 @@ class _CardNumberInputFormatter extends TextInputFormatter {
 class _ExpiryDateInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue,
-      TextEditingValue newValue,
-      ) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     var text = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (text.length > 2) {
       text = '${text.substring(0, 2)}/${text.substring(2)}';
