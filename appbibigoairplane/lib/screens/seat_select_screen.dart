@@ -4,9 +4,14 @@ import 'dart:convert';
 import 'payment_screen.dart';
 
 class SeatSelectionWidget extends StatefulWidget {
-  final double seatPrice;
+  final Map flight;
+  final Map passenger;
 
-  const SeatSelectionWidget({super.key, required this.seatPrice});
+  const SeatSelectionWidget({
+    super.key,
+    required this.flight,
+    required this.passenger,
+  });
 
   @override
   State<SeatSelectionWidget> createState() => _SeatSelectionWidgetState();
@@ -19,6 +24,14 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
   final List<String> rows = ['1', '2', '3', '4', '5', '6'];
   final List<String> columns = ['A', 'B', 'C', 'D'];
 
+  double get seatPrice {
+    final price = widget.flight['pricePromo'];
+    if (price is double) return price;
+    if (price is int) return price.toDouble();
+    if (price is String) return double.tryParse(price) ?? 0.0;
+    return 0.0;
+  }
+
   Future<void> _saveLocallyAndProceed() async {
     if (selectedSeats.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -29,23 +42,11 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
 
     final prefs = await SharedPreferences.getInstance();
 
-    final voo = {
-      'from': 'THE',
-      'to': 'REC',
-      'departureTime': '10:00',
-      'arrivalTime': '12:45',
-      'flightNumber': 'AZ1234',
-      'boardingStart': '09:30',
-      'boardingEnd': '09:55',
-      'terminal': '1',
-      'gate': 'N76F',
-      'date': '22/12',
-    };
-
     final data = {
-      'voo': voo,
+      'voo': widget.flight,
+      'passageiro': widget.passenger,
       'assentos': selectedSeats,
-      'valor': selectedSeats.length * widget.seatPrice,
+      'valor': selectedSeats.length * seatPrice,
       'dataSelecao': DateTime.now().toIso8601String(),
     };
 
@@ -56,11 +57,22 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
       MaterialPageRoute(
         builder: (_) => PaymentScreen(
           selectedSeats: selectedSeats,
-          flight: voo,
-          passenger: {},
+          flight: widget.flight,
+          passenger: widget.passenger,
         ),
       ),
     );
+  }
+
+  void _onSeatTap(String id) {
+    if (occupiedSeats.contains(id)) return;
+    setState(() {
+      if (selectedSeats.contains(id)) {
+        selectedSeats.remove(id);
+      } else {
+        selectedSeats.add(id);
+      }
+    });
   }
 
   @override
@@ -89,33 +101,16 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SeatBox(
-                          id: '$row${columns[0]}',
-                          isOccupied: occupiedSeats.contains('$row${columns[0]}'),
-                          isSelected: selectedSeats.contains('$row${columns[0]}'),
-                          onTap: () => _onSeatTap('$row${columns[0]}'),
-                        ),
-                        const SizedBox(width: 8),
-                        SeatBox(
-                          id: '$row${columns[1]}',
-                          isOccupied: occupiedSeats.contains('$row${columns[1]}'),
-                          isSelected: selectedSeats.contains('$row${columns[1]}'),
-                          onTap: () => _onSeatTap('$row${columns[1]}'),
-                        ),
-                        const SizedBox(width: 32), // Corredor
-                        SeatBox(
-                          id: '$row${columns[2]}',
-                          isOccupied: occupiedSeats.contains('$row${columns[2]}'),
-                          isSelected: selectedSeats.contains('$row${columns[2]}'),
-                          onTap: () => _onSeatTap('$row${columns[2]}'),
-                        ),
-                        const SizedBox(width: 8),
-                        SeatBox(
-                          id: '$row${columns[3]}',
-                          isOccupied: occupiedSeats.contains('$row${columns[3]}'),
-                          isSelected: selectedSeats.contains('$row${columns[3]}'),
-                          onTap: () => _onSeatTap('$row${columns[3]}'),
-                        ),
+                        for (int i = 0; i < columns.length; i++)
+                          Padding(
+                            padding: EdgeInsets.only(right: i == 1 ? 32 : 8),
+                            child: SeatBox(
+                              id: '$row${columns[i]}',
+                              isOccupied: occupiedSeats.contains('$row${columns[i]}'),
+                              isSelected: selectedSeats.contains('$row${columns[i]}'),
+                              onTap: () => _onSeatTap('$row${columns[i]}'),
+                            ),
+                          ),
                       ],
                     ),
                   );
@@ -144,17 +139,6 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
         ),
       ),
     );
-  }
-
-  void _onSeatTap(String id) {
-    if (occupiedSeats.contains(id)) return;
-    setState(() {
-      if (selectedSeats.contains(id)) {
-        selectedSeats.remove(id);
-      } else {
-        selectedSeats.add(id);
-      }
-    });
   }
 }
 

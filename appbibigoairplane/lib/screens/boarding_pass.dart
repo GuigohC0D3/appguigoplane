@@ -12,6 +12,7 @@ class BoardingPassScreen extends StatefulWidget {
 
 class _BoardingPassScreenState extends State<BoardingPassScreen> {
   Map<String, dynamic>? data;
+  bool isError = false;
 
   @override
   void initState() {
@@ -20,17 +21,44 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
   }
 
   Future<void> _loadReservation() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('ultima_reserva');
-    if (jsonString != null) {
-      setState(() {
-        data = jsonDecode(jsonString);
-      });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString('ultima_reserva');
+      if (jsonString != null) {
+        final decoded = jsonDecode(jsonString);
+        if (decoded is Map<String, dynamic>) {
+          setState(() {
+            data = decoded;
+          });
+        } else {
+          throw FormatException('Formato inválido');
+        }
+      } else {
+        throw Exception('Reserva não encontrada');
+      }
+    } catch (e) {
+      setState(() => isError = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isError) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFf2f2f2),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF094067),
+          title: const Text('Cartão de Embarque'),
+        ),
+        body: const Center(
+          child: Text(
+            'Erro ao carregar o cartão de embarque.',
+            style: TextStyle(fontSize: 16, color: Colors.red),
+          ),
+        ),
+      );
+    }
+
     if (data == null) {
       return const Scaffold(
         backgroundColor: Color(0xFFf2f2f2),
@@ -41,7 +69,13 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
     final voo = Map<String, dynamic>.from(data!['voo'] ?? {});
     final assentos = List<String>.from(data!['assentos'] ?? []);
     final codigoReserva = data!['codigoReserva'] ?? '--------';
-    final qrData = jsonEncode({'voo': voo, 'assentos': assentos});
+    final total = (data!['pagamento']?['valor'] as num?)?.toDouble() ?? 0.0;
+
+    final qrData = jsonEncode({
+      'voo': voo,
+      'assentos': assentos,
+      'reserva': codigoReserva,
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -63,80 +97,78 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3))],
+            boxShadow: const [
+              BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
+            ],
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Cabeçalho Azul
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0077C8),
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ✅ Cabeçalho Azul - Atualizado
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF0077C8),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Cliente Bibigo',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Reserva: $codigoReserva',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Cliente Bibigo',
-                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Reserva: $codigoReserva',
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
 
-              // Origem - Destino
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
+                const SizedBox(height: 16),
+
+                // Origem e destino
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _locationInfo(
-                      voo['from'] ?? '---',
-                      'Origem',
-                      voo['departureTime'] ?? '--:--',
-                      voo['date'] ?? '--/--',
-                    ),
+                    _locationInfo(voo['from'] ?? 'Teresina', 'Origem', voo['departureTime'] ?? '12:00', voo['date'] ?? '--/--'),
                     Column(
                       children: [
                         const Icon(Icons.flight_takeoff, size: 24),
                         const SizedBox(height: 4),
-                        Text('Voo\n${voo['flightNumber'] ?? '0000'}', textAlign: TextAlign.center),
+                        Text('Voo\n${voo['flightNumber'] ?? 'B4104'}', textAlign: TextAlign.center),
                       ],
                     ),
-                    _locationInfo(
-                      voo['to'] ?? '---',
-                      'Destino',
-                      voo['arrivalTime'] ?? '--:--',
-                      voo['date'] ?? '--/--',
-                    ),
+                    _locationInfo(voo['to'] ?? 'Recife', 'Destino', voo['arrivalTime'] ?? '14:39', voo['date'] ?? '--/--'),
                   ],
                 ),
-              ),
 
-              const Divider(),
+                const Divider(height: 32),
 
-              // QR e detalhes
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
+                // Info e QR
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Wrap(
-                        runSpacing: 8,
+                        runSpacing: 10,
                         children: [
-                          _infoBlock('Início Embarque', voo['boardingStart'] ?? '--:--'),
-                          _infoBlock('Fim Embarque', voo['boardingEnd'] ?? '--:--'),
-                          _infoBlock('Terminal', voo['terminal'] ?? '--'),
-                          _infoBlock('Portão', voo['gate'] ?? '--'),
+                          _infoBlock('Início Embarque', voo['boardingStart'] ?? '11:00'),
+                          _infoBlock('Fim Embarque', voo['boardingEnd'] ?? '11:20'),
+                          _infoBlock('Terminal', voo['terminal'] ?? '1'),
+                          _infoBlock('Portão', voo['gate'] ?? 'N76F'),
+                          _infoBlock('Total Pago', 'R\$ ${total.toStringAsFixed(2)}'),
                         ],
                       ),
                     ),
@@ -147,24 +179,20 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
                     ),
                   ],
                 ),
-              ),
 
-              const Divider(),
+                const Divider(height: 32),
 
-              // Assento e Seção
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _infoBlock('Assento', assentos.isNotEmpty ? assentos.join(', ') : '--'),
+                    _infoBlock('Assento', assentos.isNotEmpty ? assentos.join(', ') : '1A'),
                     _infoBlock('Seção', 'X'),
                   ],
                 ),
-              ),
 
-              const SizedBox(height: 12),
-            ],
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         ),
       ),
@@ -174,9 +202,9 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
   Widget _locationInfo(String code, String label, String time, String date) {
     return Column(
       children: [
-        Text(code, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+        Text(code, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
         Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(time, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         Text(date, style: const TextStyle(fontSize: 12)),
       ],
@@ -184,13 +212,16 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
   }
 
   Widget _infoBlock(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-      ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          const SizedBox(height: 2),
+          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 }

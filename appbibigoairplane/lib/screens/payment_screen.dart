@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,11 +36,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final cvv = cvvController.text.trim();
     final expiry = expiryController.text.trim();
 
-    final validExpiry = RegExp(r'^(0[1-9]|1[0-2])\/\d{2}$').hasMatch(expiry);
-    return name.isNotEmpty &&
-        RegExp(r'^\d{16}$').hasMatch(cardNumber) &&
-        RegExp(r'^\d{3}$').hasMatch(cvv) &&
-        validExpiry;
+    final validExpiry = RegExp(r'^(0[1-9]|1[0-2])/\d{2}$').hasMatch(expiry);
+    final validCard = RegExp(r'^\d{16}$').hasMatch(cardNumber);
+    final validCVV = RegExp(r'^\d{3}$').hasMatch(cvv);
+
+    return name.isNotEmpty && validCard && validCVV && validExpiry;
   }
 
   String getRandomString(int length) {
@@ -93,7 +94,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       };
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('ultima_reserva', reservationData.toString());
+      await prefs.setString('ultima_reserva', jsonEncode(reservationData));
 
       if (!mounted) return;
       Navigator.pushReplacement(

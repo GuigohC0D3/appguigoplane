@@ -67,7 +67,7 @@ class AeroApp extends StatelessWidget {
             textStyle: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        cardTheme: const CardThemeData(
+        cardTheme: const CardTheme(
           color: Colors.white,
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -103,7 +103,7 @@ class AeroApp extends StatelessWidget {
             textStyle: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        cardTheme: const CardThemeData(
+        cardTheme: const CardTheme(
           color: Color(0xFF1e1e1e),
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -141,11 +141,15 @@ class AeroApp extends StatelessWidget {
               ),
             );
           case '/seat-selection':
+            final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
-              builder: (_) => const SeatSelectionWidget(seatPrice: 100),
+              builder: (_) => SeatSelectionWidget(
+                flight: args['flight'],
+                passenger: args['passenger'],
+              ),
             );
           case '/payment':
-            final args = settings.arguments as Map;
+            final args = settings.arguments as Map<String, dynamic>;
             return MaterialPageRoute(
               builder: (_) => PaymentScreen(
                 flight: args['flight'],

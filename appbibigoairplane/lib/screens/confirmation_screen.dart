@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'boarding_pass.dart';
 import 'home_screen.dart';
 
-class ConfirmationScreen extends StatelessWidget {
+class ConfirmationScreen extends StatefulWidget {
   final List<String> seats;
   final double total;
   final String reservationCode;
@@ -16,17 +17,61 @@ class ConfirmationScreen extends StatelessWidget {
     required this.reservationCode,
   });
 
+  @override
+  State<ConfirmationScreen> createState() => _ConfirmationScreenState();
+}
+
+class _ConfirmationScreenState extends State<ConfirmationScreen> {
+  double? valorTotal;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTotalFromReservation();
+  }
+
+  Future<void> _loadTotalFromReservation() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('ultima_reserva');
+    if (jsonString != null) {
+      try {
+        final data = jsonDecode(jsonString);
+        if (data is Map<String, dynamic> && data['pagamento'] != null) {
+          setState(() {
+            valorTotal = (data['pagamento']['valor'] as num?)?.toDouble() ?? widget.total;
+          });
+        } else {
+          valorTotal = widget.total;
+        }
+      } catch (e) {
+        valorTotal = widget.total;
+      }
+    } else {
+      valorTotal = widget.total;
+    }
+  }
+
   Future<void> _openBoardingPass(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('ultima_reserva');
 
     if (jsonString != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const BoardingPassScreen(),
-        ),
-      );
+      try {
+        final data = jsonDecode(jsonString);
+        if (data is Map<String, dynamic>) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BoardingPassScreen()),
+          );
+        } else {
+          throw Exception('Formato inválido.');
+        }
+      } catch (e) {
+        debugPrint('Erro ao decodificar reserva: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao abrir cartão de embarque.')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reserva não encontrada.')),
@@ -36,6 +81,8 @@ class ConfirmationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final totalFormatted = valorTotal?.toStringAsFixed(2) ?? '...';
+
     return Scaffold(
       backgroundColor: const Color(0xFFd8eefe),
       appBar: AppBar(
@@ -58,7 +105,7 @@ class ConfirmationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Código da Reserva: $reservationCode',
+                'Código da Reserva: ${widget.reservationCode}',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -67,7 +114,7 @@ class ConfirmationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Assentos: ${seats.join(', ')}\nTotal: R\$ ${total.toStringAsFixed(2)}',
+                'Assentos: ${widget.seats.join(', ')}\nTotal: R\$ $totalFormatted',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 16),
               ),
