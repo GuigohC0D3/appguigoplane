@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment=" commitbomb">
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
+    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment=" final version">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/widgets/open_menu_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/widgets/open_menu_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +102,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748265465051</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary=" final version">
+      <option name="closed" value="true" />
+      <created>1748299275523</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1748299275523</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -155,7 +161,8 @@
     <MESSAGE value="some fixes" />
     <MESSAGE value="commit" />
     <MESSAGE value=" commitbomb" />
-    <option name="LAST_COMMIT_MESSAGE" value=" commitbomb" />
+    <MESSAGE value=" final version" />
+    <option name="LAST_COMMIT_MESSAGE" value=" final version" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

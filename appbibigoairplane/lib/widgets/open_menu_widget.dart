@@ -17,10 +17,8 @@ class OpenMenuWidget extends StatelessWidget {
         const SizedBox(height: 16),
         _buildSectionTitle('Minha Viagem'),
         _buildMenuItem(context, 'Encontrar reserva'),
-        _buildMenuItem(context, 'Antecipar voo'),
+        _buildMenuItem(context, 'Check-in'),
         const SizedBox(height: 16),
-        _buildSectionTitle('Informações para sua viagem'),
-        _buildMenuItem(context, 'Alteração e Cancelamento'),
         const SizedBox(height: 16),
         _buildSectionTitle('Conta'),
         _buildMenuItem(context, 'Logout', isLogout: true),
@@ -61,7 +59,7 @@ class OpenMenuWidget extends StatelessWidget {
           case 'Encontrar reserva':
             navigatorKey.currentState?.pushNamed('/reservation-search');
             break;
-          case 'Antecipar voo':
+          case 'Check-in':
           // rota fictícia, adicione se existir
             navigatorKey.currentState?.pushNamed('/check-in');
             break;
