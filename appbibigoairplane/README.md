@@ -1,16 +1,37 @@
-# appbibigoairplane
+# ✈️ BibigoAirplane
 
-A new Flutter project.
+**BibigoAirplane** é um aplicativo Flutter que simula uma experiência completa de compra de passagens aéreas. Desde a pesquisa de voos, seleção de assentos, pagamento, geração de cartão de embarque até funcionalidades como check-in e gerenciamento de perfil.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Funcionalidades Principais
 
-A few resources to get you started if this is your first Flutter project:
+- 🔍 **Pesquisa de Voos** com filtro por origem, destino, datas, número de passageiros e classe.
+- 💺 **Seleção de Assentos** com layout inspirado em aviões reais (corredores, poltronas).
+- 💳 **Pagamento Simulado** com opção de cartão ou boleto.
+- 🎫 **Cartão de Embarque Digital** com QR Code.
+- 📱 **Check-in Digital** diretamente pelo app.
+- 👤 **Autenticação com Firebase** (cadastro, login, redefinição de senha).
+- 🧾 **Histórico de Reservas (local)** com persistência via SharedPreferences.
+- 🌙 **Modo Claro e Escuro** disponível em todo o app.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🧠 Tecnologias Utilizadas
+
+- Flutter + Dart
+- Firebase Authentication
+- Firebase Storage
+- Shared Preferences
+- Lottie (animações)
+- QR Flutter (QR code no cartão de embarque)
+
+
+
+## 🧪 Como Testar
+
+```bash
+git clone https://github.com/GuigohC0D3/appguigoplane
+cd bibigoairplane
+flutter pub get
+flutter run
