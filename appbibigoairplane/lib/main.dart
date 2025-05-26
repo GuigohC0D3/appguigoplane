@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'firebase_options.dart';
 
 // Telas
@@ -16,9 +14,8 @@ import 'screens/check_in_screen.dart';
 import 'screens/seat_select_screen.dart';
 import 'screens/reservation_search_screen.dart';
 import 'screens/payment_screen.dart';
-import 'screens/forgot_password_screen.dart';
-import 'screens/cancel_board_screen.dart';
 
+/// Chave global para navegação fora do contexto direto
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
@@ -35,10 +32,12 @@ class AeroApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
       title: 'BibigoAirplane',
+      debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
+      themeMode: ThemeMode.system,
       theme: ThemeData(
+        brightness: Brightness.light,
         scaffoldBackgroundColor: const Color(0xFFd8eefe),
         primaryColor: const Color(0xFF3da9fc),
         colorScheme: ColorScheme.fromSwatch().copyWith(
@@ -68,19 +67,55 @@ class AeroApp extends StatelessWidget {
             textStyle: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        cardTheme: CardTheme(
-          color: const Color(0xFFFFFFFF),
+        cardTheme: const CardThemeData(
+          color: Colors.white,
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+          margin: EdgeInsets.symmetric(vertical: 8),
         ),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFFFFFFFF),
+          backgroundColor: Colors.white,
           selectedItemColor: Color(0xFF3da9fc),
           unselectedItemColor: Color(0xFF5f6c7b),
         ),
       ),
-      home: const PreloadingScreen(),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        primaryColor: const Color(0xFF90b4ce),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1f1f1f),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        fontFamily: 'Montserrat',
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white70),
+          bodyMedium: TextStyle(color: Colors.white60),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF3da9fc),
+            foregroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        cardTheme: const CardThemeData(
+          color: Color(0xFF1e1e1e),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
+          margin: EdgeInsets.symmetric(vertical: 8),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF1f1f1f),
+          selectedItemColor: Color(0xFF3da9fc),
+          unselectedItemColor: Colors.white70,
+        ),
+      ),
+      initialRoute: '/preloading',
       routes: {
         '/preloading': (context) => const PreloadingScreen(),
         '/welcome': (context) => const WelcomeScreen(),
@@ -90,42 +125,37 @@ class AeroApp extends StatelessWidget {
         '/flight-search': (context) => const FlightSearch(),
         '/check-in': (context) => const CheckInScreen(),
         '/reservation-search': (context) => const ReservationSearchScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/cancel-boarding': (context) => const CancelBoardingScreen(),
       },
       onGenerateRoute: (settings) {
-        if (settings.name == '/flight-results') {
-          final args = settings.arguments as Map<String, dynamic>?;
-          return MaterialPageRoute(
-            builder: (_) => FlightResultsScreen(
-              origin: args?['origin'] ?? '',
-              destination: args?['destination'] ?? '',
-              departureDate: args?['departureDate'] ?? DateTime.now(),
-              returnDate: args?['returnDate'],
-              passengers: args?['passengers'] ?? 1,
-              flightClass: args?['flightClass'] ?? 'ECONOMY',
-            ),
-          );
+        switch (settings.name) {
+          case '/flight-results':
+            final args = settings.arguments as Map<String, dynamic>?;
+            return MaterialPageRoute(
+              builder: (_) => FlightResultsScreen(
+                origin: args?['origin'] ?? '',
+                destination: args?['destination'] ?? '',
+                departureDate: args?['departureDate'] ?? DateTime.now(),
+                returnDate: args?['returnDate'],
+                passengers: args?['passengers'] ?? 1,
+                flightClass: args?['flightClass'] ?? 'ECONOMY',
+              ),
+            );
+          case '/seat-selection':
+            return MaterialPageRoute(
+              builder: (_) => const SeatSelectionWidget(seatPrice: 100),
+            );
+          case '/payment':
+            final args = settings.arguments as Map;
+            return MaterialPageRoute(
+              builder: (_) => PaymentScreen(
+                flight: args['flight'],
+                passenger: args['passenger'],
+                selectedSeats: args['selectedSeats'],
+              ),
+            );
+          default:
+            return null;
         }
-
-        if (settings.name == '/seat-selection') {
-          return MaterialPageRoute(
-            builder: (_) => const SeatSelectionWidget(seatPrice: 100),
-          );
-        }
-
-        if (settings.name == '/payment') {
-          final args = settings.arguments as Map<String, dynamic>;
-          return MaterialPageRoute(
-            builder: (_) => PaymentScreen(
-              flight: args['flight'],
-              passenger: args['passenger'],
-              selectedSeats: args['selectedSeats'],
-            ),
-          );
-        }
-
-        return null;
       },
     );
   }

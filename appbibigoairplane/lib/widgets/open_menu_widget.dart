@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../main.dart'; // Importa o navigatorKey do main.dart
+import '../main.dart';
 
 class OpenMenuWidget extends StatelessWidget {
   const OpenMenuWidget({super.key});
@@ -48,26 +48,40 @@ class OpenMenuWidget extends StatelessWidget {
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: () {
         Navigator.pop(context);
+
         if (isLogout) {
           _confirmLogout();
-        } else {
-          switch (title) {
-            case 'Alteração e Cancelamento':
-              navigatorKey.currentState?.pushNamed('/cancel-boarding');
-              break;
-            default:
+          return;
+        }
+
+        switch (title) {
+          case 'Alteração e Cancelamento':
+            navigatorKey.currentState?.pushNamed('/cancel-boarding');
+            break;
+          case 'Encontrar reserva':
+            navigatorKey.currentState?.pushNamed('/reservation-search');
+            break;
+          case 'Antecipar voo':
+          // rota fictícia, adicione se existir
+            navigatorKey.currentState?.pushNamed('/check-in');
+            break;
+          default:
+            if (navigatorKey.currentContext != null) {
               ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
                 SnackBar(content: Text('$title clicado')),
               );
-          }
+            }
         }
       },
     );
   }
 
   void _confirmLogout() {
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+
     showDialog(
-      context: navigatorKey.currentContext!,
+      context: ctx,
       builder: (context) => AlertDialog(
         title: const Text('Deseja sair da conta?'),
         content: const Text('Você será desconectado do aplicativo.'),

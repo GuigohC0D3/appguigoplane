@@ -27,7 +27,7 @@ class _PreloadingScreenState extends State<PreloadingScreen> {
       backgroundColor: Colors.white,
       body: Center(
         child: Lottie.asset(
-          'assets/animations/plane_loading.json', // coloque sua animação aqui
+          'assets/animations/plane_loading.json',
           width: 200,
           height: 200,
           fit: BoxFit.contain,

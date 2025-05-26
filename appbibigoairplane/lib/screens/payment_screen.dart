@@ -1,8 +1,8 @@
 import 'dart:math';
-import 'dart:convert'; // ✅ Necessário para jsonEncode
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ✅ Necessário para salvar reserva
+import 'package:shared_preferences/shared_preferences.dart';
 import 'confirmation_screen.dart';
 
 
@@ -205,7 +205,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ],
             const Spacer(),
 
-            // VALOR TOTAL ADICIONADO AQUI
+
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: Row(

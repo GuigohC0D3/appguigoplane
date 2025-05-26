@@ -85,22 +85,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   if (newName.isNotEmpty && currentUser != null) {
                     try {
-                      // Atualiza o displayName no Firebase Auth
+
                       await currentUser.updateDisplayName(newName);
                       await currentUser.reload();
                       final updatedUser = FirebaseAuth.instance.currentUser;
 
-                      // Atualiza o displayName no Firestore
+
                       await FirebaseFirestore.instance
                           .collection('users')
                           .doc(currentUser.uid)
                           .update({'displayName': newName});
 
-                      // Atualiza o estado local
+
                       setState(() {});
 
                       if (context.mounted) {
-                        Navigator.pop(context); // Fecha o diálogo de edição
+                        Navigator.pop(context);
                         showDialog(
                           context: context,
                           builder:
@@ -121,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     } catch (e) {
                       debugPrint(
                         'Erro ao atualizar o nome: $e',
-                      ); // Isso mostrará o erro real no console
+                      );
                       if (context.mounted) {
                         Navigator.pop(context);
                         showDialog(
@@ -131,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 title: const Text('Erro'),
                                 content: Text(
                                   'Erro: $e',
-                                ), // Mostra o erro real no app também (temporariamente)
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context),

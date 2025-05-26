@@ -23,7 +23,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       SnackBar(content: Text('Um e-mail de recuperação foi enviado para $email.')),
     );
 
-    Navigator.pop(context); // Volta para a tela anterior (Login)
+    Navigator.pop(context);
   }
 
   @override

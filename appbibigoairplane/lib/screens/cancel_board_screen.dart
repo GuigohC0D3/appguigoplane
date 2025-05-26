@@ -23,7 +23,7 @@ class CancelBoardingScreen extends StatelessWidget {
     );
 
     if (confirm == true && context.mounted) {
-      // Aqui você pode remover o cartão do Firestore ou SharedPreferences
+
 
       showDialog(
         context: context,

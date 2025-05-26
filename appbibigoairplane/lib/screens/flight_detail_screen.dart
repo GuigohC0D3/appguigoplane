@@ -5,7 +5,6 @@ class FlightDetailScreen extends StatelessWidget {
   const FlightDetailScreen({super.key, required this.flight});
 
   void _confirmarCompra(BuildContext context) {
-    // Apenas mostra a confirmação
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Compra confirmada com sucesso!')),
     );

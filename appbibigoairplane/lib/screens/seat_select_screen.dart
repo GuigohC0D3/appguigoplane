@@ -23,7 +23,6 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
   Future<void> _saveLocallyAndProceed() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // 🔁 Aqui você colocará os dados reais do voo selecionado
     final voo = {
       'from': 'THE',
       'to': 'REC',
@@ -53,7 +52,7 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
           selectedSeats: selectedSeats,
 
           flight: voo,
-          passenger: {}, // pode ser preenchido depois
+          passenger: {},
         ),
       ),
     );
