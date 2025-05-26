@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -27,6 +28,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _promoCodeController = TextEditingController();
+
+  final _cpfMask = MaskTextInputFormatter(mask: '###.###.###-##', filter: {"#": RegExp(r'[0-9]')});
+  final _phoneMask = MaskTextInputFormatter(mask: '(##) #####-####', filter: {"#": RegExp(r'[0-9]')});
+  final _cepMask = MaskTextInputFormatter(mask: '#####-###', filter: {"#": RegExp(r'[0-9]')});
+  final _dateMask = MaskTextInputFormatter(mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -67,9 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           message = 'Senha fraca.';
         }
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
     }
   }
@@ -106,41 +110,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _nameController,
                     decoration: _inputDecoration('Nome Completo'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _cpfController,
+                    inputFormatters: [_cpfMask],
                     decoration: _inputDecoration('CPF'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _birthDateController,
+                    inputFormatters: [_dateMask],
                     decoration: _inputDecoration('Data de Nascimento'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _phoneController,
+                    inputFormatters: [_phoneMask],
                     decoration: _inputDecoration('Telefone'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                 ],
               ),
@@ -149,32 +140,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   TextFormField(
                     controller: _cepController,
+                    inputFormatters: [_cepMask],
                     decoration: _inputDecoration('CEP'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _addressController,
                     decoration: _inputDecoration('Endereço'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _numberController,
                     decoration: _inputDecoration('Número'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -185,31 +165,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextFormField(
                     controller: _neighborhoodController,
                     decoration: _inputDecoration('Bairro'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _cityController,
                     decoration: _inputDecoration('Cidade'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _stateController,
                     decoration: _inputDecoration('Estado'),
-                    validator:
-                        (value) =>
-                            value == null || value.isEmpty
-                                ? 'Campo obrigatório'
-                                : null,
+                    validator: (value) => value == null || value.isEmpty ? 'Campo obrigatório' : null,
                   ),
                 ],
               ),
@@ -220,11 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _emailController,
                     decoration: _inputDecoration('Email'),
                     keyboardType: TextInputType.emailAddress,
-                    validator:
-                        (value) =>
-                            value != null && value.contains('@')
-                                ? null
-                                : 'Email inválido',
+                    validator: (value) => value != null && value.contains('@') ? null : 'Email inválido',
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -233,22 +197,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: _inputDecoration(
                       'Senha',
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed:
-                            () => setState(
-                              () => _obscurePassword = !_obscurePassword,
-                            ),
+                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
                     ),
-                    validator:
-                        (value) =>
-                            value != null && value.length >= 6
-                                ? null
-                                : 'Senha muito curta',
+                    validator: (value) => value != null && value.length >= 6 ? null : 'Senha muito curta',
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -257,32 +210,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: _inputDecoration(
                       'Confirmar Senha',
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirmPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed:
-                            () => setState(
-                              () =>
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword,
-                            ),
+                        icon: Icon(_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                       ),
                     ),
-                    validator:
-                        (value) =>
-                            value == _passwordController.text
-                                ? null
-                                : 'As senhas não coincidem',
+                    validator: (value) =>
+                        value == _passwordController.text ? null : 'As senhas não coincidem',
                   ),
                 ],
               ),
               CheckboxListTile(
                 title: const Text('Aceito os termos e condições'),
                 value: _acceptTerms,
-                onChanged:
-                    (value) => setState(() => _acceptTerms = value ?? false),
+                onChanged: (value) => setState(() => _acceptTerms = value ?? false),
               ),
               const SizedBox(height: 20),
               ElevatedButton(

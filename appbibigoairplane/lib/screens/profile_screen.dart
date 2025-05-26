@@ -43,9 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _uploadImage() async {
     try {
       if (user != null && _imageFile != null) {
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('profile_pictures/${user!.uid}.jpg');
+        final storageRef = FirebaseStorage.instance.ref().child(
+          'profile_pictures/${user!.uid}.jpg',
+        );
 
         await storageRef.putFile(_imageFile!);
         final downloadURL = await storageRef.getDownloadURL();
@@ -66,34 +66,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final nameController = TextEditingController();
     await showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Editar nome'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(hintText: 'Novo nome'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Editar nome'),
+            content: TextField(
+              controller: nameController,
+              decoration: const InputDecoration(hintText: 'Novo nome'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final newName = nameController.text.trim();
+                  final currentUser = FirebaseAuth.instance.currentUser;
+
+                  if (newName.isNotEmpty && currentUser != null) {
+                    try {
+                      // Atualiza o displayName no Firebase Auth
+                      await currentUser.updateDisplayName(newName);
+                      await currentUser.reload();
+                      final updatedUser = FirebaseAuth.instance.currentUser;
+
+                      // Atualiza o displayName no Firestore
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(currentUser.uid)
+                          .update({'displayName': newName});
+
+                      // Atualiza o estado local
+                      setState(() {});
+
+                      if (context.mounted) {
+                        Navigator.pop(context); // Fecha o diálogo de edição
+                        showDialog(
+                          context: context,
+                          builder:
+                              (_) => AlertDialog(
+                                title: const Text('Sucesso'),
+                                content: const Text(
+                                  'Seu nome foi alterado com sucesso.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                        );
+                      }
+                    } catch (e) {
+                      debugPrint(
+                        'Erro ao atualizar o nome: $e',
+                      ); // Isso mostrará o erro real no console
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder:
+                              (_) => AlertDialog(
+                                title: const Text('Erro'),
+                                content: Text(
+                                  'Erro: $e',
+                                ), // Mostra o erro real no app também (temporariamente)
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: const Text('Salvar'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () async {
-              final newName = nameController.text.trim();
-              if (newName.isNotEmpty) {
-                await user?.updateDisplayName(newName);
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(user!.uid)
-                    .update({'displayName': newName});
-                setState(() {});
-              }
-              if (context.mounted) Navigator.pop(context);
-            },
-            child: const Text('Salvar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -109,7 +163,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: user!.email!);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Email de redefinição de senha enviado.')),
+          const SnackBar(
+            content: Text('Email de redefinição de senha enviado.'),
+          ),
         );
       }
     }
@@ -157,10 +213,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundImage: _downloadURL != null
-                        ? NetworkImage(_downloadURL!)
-                        : const AssetImage('assets/avatar_placeholder.png')
-                    as ImageProvider,
+                    backgroundImage:
+                        _downloadURL != null
+                            ? NetworkImage(_downloadURL!)
+                            : const AssetImage('assets/avatar_placeholder.png')
+                                as ImageProvider,
                   ),
                 ),
               ),
@@ -177,15 +234,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Text(
               user?.email ?? '',
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-
-            /// Botões
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(

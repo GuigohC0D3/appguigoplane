@@ -17,6 +17,7 @@ import 'screens/seat_select_screen.dart';
 import 'screens/reservation_search_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/forgot_password_screen.dart';
+import 'screens/cancel_board_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -90,6 +91,7 @@ class AeroApp extends StatelessWidget {
         '/check-in': (context) => const CheckInScreen(),
         '/reservation-search': (context) => const ReservationSearchScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
+        '/cancel-boarding': (context) => const CancelBoardingScreen(),
       },
       onGenerateRoute: (settings) {
         if (settings.name == '/flight-results') {

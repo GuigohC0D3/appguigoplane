@@ -91,7 +91,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF3da9fc), Color(0xFF094067)],
+            colors: [Color(0xFFaee0fd), Color.fromARGB(255, 255, 255, 255)],
           ),
         ),
         child: Column(

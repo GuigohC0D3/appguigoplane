@@ -51,7 +51,15 @@ class OpenMenuWidget extends StatelessWidget {
         if (isLogout) {
           _confirmLogout();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$title clicado')));
+          switch (title) {
+            case 'Alteração e Cancelamento':
+              navigatorKey.currentState?.pushNamed('/cancel-boarding');
+              break;
+            default:
+              ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+                SnackBar(content: Text('$title clicado')),
+              );
+          }
         }
       },
     );
