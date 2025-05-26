@@ -5,7 +5,7 @@ import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -31,16 +31,16 @@ class _LoginScreenState extends State<LoginScreen> {
           password: password,
         );
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login realizado com sucesso!')),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const HomeScreen()),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
       } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
         String message = 'Erro ao fazer login.';
         if (e.code == 'user-not-found') {
           message = 'Usuário não encontrado.';
@@ -51,11 +51,12 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro inesperado: ${e.toString()}')),
         );
       } finally {
-        setState(() => isLoading = false);
+        if (mounted) setState(() => isLoading = false);
       }
     }
   }
@@ -69,6 +70,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const borderColor = Color(0xFF094067);
+    const highlightColor = Color(0xFF3da9fc);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -88,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text(
                   'BibigoAirplane',
                   style: TextStyle(
-                    color: Color(0xFF094067),
+                    color: borderColor,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -98,15 +102,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: const TextStyle(color: Color(0xFF094067)),
+                    labelStyle: const TextStyle(color: borderColor),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF094067)),
+                      borderSide: const BorderSide(color: borderColor),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF094067)),
+                      borderSide: const BorderSide(color: borderColor),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -127,24 +131,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: obscurePassword,
                   decoration: InputDecoration(
                     labelText: 'Senha',
-                    labelStyle: const TextStyle(color: Color(0xFF094067)),
+                    labelStyle: const TextStyle(color: borderColor),
                     filled: true,
                     fillColor: Colors.white,
                     suffixIcon: IconButton(
                       icon: Icon(
                         obscurePassword ? Icons.visibility_off : Icons.visibility,
-                        color: const Color(0xFF094067),
+                        color: borderColor,
                       ),
                       onPressed: () {
                         setState(() => obscurePassword = !obscurePassword);
                       },
                     ),
                     border: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF094067)),
+                      borderSide: const BorderSide(color: borderColor),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xFF094067)),
+                      borderSide: const BorderSide(color: borderColor),
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
@@ -163,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: const Text(
                       'Esqueci minha senha',
-                      style: TextStyle(color: Color(0xFF3da9fc)),
+                      style: TextStyle(color: highlightColor),
                     ),
                   ),
                 ),
@@ -171,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton(
                   onPressed: isLoading ? null : login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3da9fc),
+                    backgroundColor: highlightColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 32),
                     shape: RoundedRectangleBorder(
@@ -179,7 +183,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   child: isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                  )
                       : const Text('Entrar', style: TextStyle(fontSize: 16)),
                 ),
                 const SizedBox(height: 12),
@@ -204,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: const Text(
                     'Não tem uma Conta BibigoAirplane? Cadastre-se',
-                    style: TextStyle(color: Color(0xFF3da9fc)),
+                    style: TextStyle(color: highlightColor),
                   ),
                 ),
               ],

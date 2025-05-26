@@ -22,7 +22,6 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
   Future<void> _loadReservation() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString('ultima_reserva');
-
     if (jsonString != null) {
       setState(() {
         data = jsonDecode(jsonString);
@@ -41,13 +40,20 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
 
     final voo = Map<String, dynamic>.from(data!['voo'] ?? {});
     final assentos = List<String>.from(data!['assentos'] ?? []);
-    final qrData = {...voo, 'assentos': assentos};
     final codigoReserva = data!['codigoReserva'] ?? '--------';
+    final qrData = jsonEncode({'voo': voo, 'assentos': assentos});
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cartão de Embarque'),
         backgroundColor: const Color(0xFF094067),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.home),
+            tooltip: 'Voltar à Home',
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false),
+          )
+        ],
       ),
       backgroundColor: const Color(0xFFf2f2f2),
       body: Center(
@@ -57,19 +63,18 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: const [
-              BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3)),
-            ],
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3))],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Cabeçalho Azul
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: const BoxDecoration(
                   color: Color(0xFF0077C8),
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,6 +91,8 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
                   ],
                 ),
               ),
+
+              // Origem - Destino
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
@@ -113,7 +120,10 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
                   ],
                 ),
               ),
+
               const Divider(),
+
+              // QR e detalhes
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
@@ -131,14 +141,17 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
                       ),
                     ),
                     QrImageView(
-                      data: qrData.toString(),
+                      data: qrData,
                       version: QrVersions.auto,
                       size: 100.0,
                     ),
                   ],
                 ),
               ),
+
               const Divider(),
+
+              // Assento e Seção
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
@@ -149,6 +162,7 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 12),
             ],
           ),

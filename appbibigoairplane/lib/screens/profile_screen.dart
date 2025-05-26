@@ -43,14 +43,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _uploadImage() async {
     try {
       if (user != null && _imageFile != null) {
-        final storageRef = FirebaseStorage.instance.ref().child(
-          'profile_pictures/${user!.uid}.jpg',
-        );
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('profile_pictures/${user!.uid}.jpg');
 
         await storageRef.putFile(_imageFile!);
         final downloadURL = await storageRef.getDownloadURL();
 
+        if (!mounted) return;
         setState(() => _downloadURL = downloadURL);
+
         await user!.updatePhotoURL(downloadURL);
         await FirebaseFirestore.instance
             .collection('users')
@@ -64,110 +66,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _changeDisplayName() async {
     final nameController = TextEditingController();
+
     await showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            title: const Text('Editar nome'),
-            content: TextField(
-              controller: nameController,
-              decoration: const InputDecoration(hintText: 'Novo nome'),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final newName = nameController.text.trim();
-                  final currentUser = FirebaseAuth.instance.currentUser;
-
-                  if (newName.isNotEmpty && currentUser != null) {
-                    try {
-
-                      await currentUser.updateDisplayName(newName);
-                      await currentUser.reload();
-                      final updatedUser = FirebaseAuth.instance.currentUser;
-
-
-                      await FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(currentUser.uid)
-                          .update({'displayName': newName});
-
-
-                      setState(() {});
-
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        showDialog(
-                          context: context,
-                          builder:
-                              (_) => AlertDialog(
-                                title: const Text('Sucesso'),
-                                content: const Text(
-                                  'Seu nome foi alterado com sucesso.',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              ),
-                        );
-                      }
-                    } catch (e) {
-                      debugPrint(
-                        'Erro ao atualizar o nome: $e',
-                      );
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                        showDialog(
-                          context: context,
-                          builder:
-                              (_) => AlertDialog(
-                                title: const Text('Erro'),
-                                content: Text(
-                                  'Erro: $e',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('OK'),
-                                  ),
-                                ],
-                              ),
-                        );
-                      }
-                    }
-                  }
-                },
-                child: const Text('Salvar'),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        title: const Text('Editar nome'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: 'Novo nome'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              final currentUser = FirebaseAuth.instance.currentUser;
+
+              if (newName.isNotEmpty && currentUser != null) {
+                try {
+                  await currentUser.updateDisplayName(newName);
+                  await currentUser.reload();
+
+                  await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(currentUser.uid)
+                      .update({'displayName': newName});
+
+                  if (!mounted) return;
+                  setState(() {});
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Sucesso'),
+                      content: const Text('Seu nome foi alterado com sucesso.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                } catch (e) {
+                  debugPrint('Erro ao atualizar o nome: $e');
+                  if (!mounted) return;
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('Erro'),
+                      content: Text('Erro: $e'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
     );
   }
 
   void _signOut() async {
     await FirebaseAuth.instance.signOut();
-    if (context.mounted) {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
+    if (!mounted) return;
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   void _resetPassword() async {
     if (user?.email != null) {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: user!.email!);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Email de redefinição de senha enviado.'),
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email de redefinição de senha enviado.'),
+        ),
+      );
     }
   }
 
@@ -183,8 +168,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = const Color(0xFF094067);
-    final backgroundColor = const Color(0xFFd8eefe);
+    const themeColor = Color(0xFF094067);
+    const backgroundColor = Color(0xFFd8eefe);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -201,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -213,11 +198,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundImage:
-                        _downloadURL != null
-                            ? NetworkImage(_downloadURL!)
-                            : const AssetImage('assets/avatar_placeholder.png')
-                                as ImageProvider,
+                    backgroundImage: _downloadURL != null
+                        ? NetworkImage(_downloadURL!)
+                        : const AssetImage('assets/avatar_placeholder.png')
+                    as ImageProvider,
                   ),
                 ),
               ),
@@ -238,57 +222,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _changeDisplayName,
-                icon: const Icon(Icons.edit),
-                label: const Text('Editar Nome'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: themeColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+            _buildButton(
+              onPressed: _changeDisplayName,
+              label: 'Editar Nome',
+              icon: Icons.edit,
+              color: themeColor,
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _resetPassword,
-                icon: const Icon(Icons.lock_reset),
-                label: const Text('Redefinir Senha'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+            _buildButton(
+              onPressed: _resetPassword,
+              label: 'Redefinir Senha',
+              icon: Icons.lock_reset,
+              color: Colors.orange,
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _signOut,
-                icon: const Icon(Icons.logout),
-                label: const Text('Sair da Conta'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
+            _buildButton(
+              onPressed: _signOut,
+              label: 'Sair da Conta',
+              icon: Icons.logout,
+              color: Colors.red,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton({
+    required VoidCallback onPressed,
+    required String label,
+    required IconData icon,
+    required Color color,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(label),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );

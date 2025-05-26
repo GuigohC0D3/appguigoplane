@@ -8,8 +8,7 @@ class WelcomeScreen extends StatefulWidget {
   State<WelcomeScreen> createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen>
-    with TickerProviderStateMixin {
+class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
   String displayedText = '';
   final String fullText = 'O destino dos seus sonhos\ncomeça aqui';
   int _charIndex = 0;
@@ -39,7 +38,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
-    ).animate(CurvedAnimation(parent: _logoController, curve: Curves.easeIn));
+    ).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.easeIn),
+    );
   }
 
   void _startTypingEffect() {
@@ -54,6 +55,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         Future.delayed(const Duration(milliseconds: 300), () {
           _logoController.forward();
           Future.delayed(const Duration(seconds: 2), () {
+            if (!mounted) return;
             Navigator.pushReplacementNamed(context, '/home');
           });
         });
@@ -91,7 +93,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFFaee0fd), Color.fromARGB(255, 255, 255, 255)],
+            colors: [
+              Color(0xFFaee0fd),
+              Color.fromARGB(255, 255, 255, 255),
+            ],
           ),
         ),
         child: Column(
@@ -108,7 +113,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
             const SizedBox(height: 40),
 
-            // Imagem animada
+            // Logo com animação
             SlideTransition(
               position: _slideAnimation,
               child: FadeTransition(

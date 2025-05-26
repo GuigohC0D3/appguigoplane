@@ -1,10 +1,8 @@
 import 'dart:math';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'confirmation_screen.dart';
-
 
 class PaymentScreen extends StatefulWidget {
   final List<String> selectedSeats;
@@ -12,11 +10,11 @@ class PaymentScreen extends StatefulWidget {
   final Map passenger;
 
   const PaymentScreen({
-    Key? key,
+    super.key,
     required this.selectedSeats,
     required this.flight,
     required this.passenger,
-  }) : super(key: key);
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -53,7 +51,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   double get totalAmount {
-    debugPrint('🔍 Flight Data: ${widget.flight}');
     final priceValue = widget.flight['pricePromo'];
     if (priceValue is double) {
       return priceValue * widget.selectedSeats.length;
@@ -69,6 +66,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _confirmPayment() async {
     if (_loading) return;
     if (paymentMethod == 'card' && !isCardValid) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Preencha todos os campos do cartão corretamente.')),
       );
@@ -90,14 +88,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
           'validade': expiryController.text,
           'valor': totalAmount,
         },
-        'codigoReserva': reservationCode, //
+        'codigoReserva': reservationCode,
         'dataReserva': DateTime.now().toIso8601String(),
       };
 
-      // Salva localmente
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('ultima_reserva', jsonEncode(reservationData));
+      await prefs.setString('ultima_reserva', reservationData.toString());
 
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -109,6 +107,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao processar o pagamento: $e')),
       );
@@ -204,8 +203,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ],
             const Spacer(),
-
-
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: Row(
@@ -222,7 +219,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ],
               ),
             ),
-
             ElevatedButton(
               onPressed: _loading ? null : _confirmPayment,
               style: ElevatedButton.styleFrom(
@@ -232,17 +228,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               child: _loading
                   ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
+                height: 22,
+                width: 22,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
                   : const Text(
-                      'Finalizar Pagamento',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
+                'Finalizar Pagamento',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -254,9 +250,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
 class _CardNumberInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
     var text = newValue.text.replaceAll(RegExp(r'\D'), '');
     var newText = '';
     for (int i = 0; i < text.length; i++) {
@@ -273,9 +269,9 @@ class _CardNumberInputFormatter extends TextInputFormatter {
 class _ExpiryDateInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
     var text = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
     if (text.length > 2) {
       text = '${text.substring(0, 2)}/${text.substring(2)}';

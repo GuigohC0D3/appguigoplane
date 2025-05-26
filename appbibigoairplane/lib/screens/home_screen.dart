@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'boarding_pass.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
-import 'flight_search_screen.dart';
 import 'reservation_search_screen.dart';
 import '../widgets/open_menu_widget.dart';
 
@@ -32,11 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final updatedUser = FirebaseAuth.instance.currentUser;
     final prefs = await SharedPreferences.getInstance();
 
+    if (!mounted) return;
+
+    final name = updatedUser?.displayName?.isNotEmpty == true
+        ? updatedUser!.displayName!
+        : updatedUser?.email?.split('@')[0] ?? 'Usuário';
+
     setState(() {
       isLoggedIn = updatedUser != null;
-      userName = updatedUser?.displayName?.isNotEmpty == true
-          ? updatedUser!.displayName!
-          : updatedUser?.email?.split('@')[0] ?? 'Usuário';
+      userName = name;
       hasReserva = prefs.containsKey('ultima_reserva');
     });
   }
@@ -51,39 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             children: [
-              GestureDetector(
-                onTap: () {
-                  if (!isLoggedIn) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF094067),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.person, color: Colors.white),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          isLoggedIn ? 'Olá, $userName' : 'Faça seu login ou cadastre-se',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _buildHeaderCard(context),
               const SizedBox(height: 20),
               _infoBanner(),
               const SizedBox(height: 24),
@@ -96,65 +67,105 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              GridView.count(
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                children: [
-                  _buildMenuButton(Icons.flight_takeoff, 'Passagens', () {
-                    Navigator.pushNamed(context, '/flight-search');
-                  }),
-                  _buildMenuButton(Icons.search, 'Reserva', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ReservationSearchScreen()),
-                    );
-                  }),
-                  _buildMenuButton(Icons.check, 'Check-in', () {
-                    Navigator.pushNamed(context, '/check-in');
-                  }),
-                  _buildMenuButton(Icons.airplane_ticket, 'Cartão', () {
-                    if (hasReserva) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const BoardingPassScreen()),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Você ainda não possui um cartão de embarque.'),
-                          backgroundColor: Colors.orange,
-                        ),
-                      );
-                    }
-                  }),
-                  _buildMenuButton(Icons.account_circle, 'Perfil', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => isLoggedIn ? const ProfileScreen() : const LoginScreen(),
-                      ),
-                    ).then((_) => _checkSession());
-                  }),
-                  _buildMenuButton(Icons.menu, 'Mais', () {
-                    showModalBottomSheet(
-                      context: context,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                      ),
-                      builder: (_) => const OpenMenuWidget(),
-                    ).then((_) => _checkSession());
-                  }),
-                ],
-              ),
+              _buildMainMenu(),
               const SizedBox(height: 20),
               if (hasReserva) _lastReservationCard(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildHeaderCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (!isLoggedIn) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF094067),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.person, color: Colors.white),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                isLoggedIn ? 'Olá, $userName' : 'Faça seu login ou cadastre-se',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainMenu() {
+    return GridView.count(
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      children: [
+        _buildMenuButton(Icons.flight_takeoff, 'Passagens', () {
+          Navigator.pushNamed(context, '/flight-search');
+        }),
+        _buildMenuButton(Icons.search, 'Reserva', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ReservationSearchScreen()),
+          );
+        }),
+        _buildMenuButton(Icons.check, 'Check-in', () {
+          Navigator.pushNamed(context, '/check-in');
+        }),
+        _buildMenuButton(Icons.airplane_ticket, 'Cartão', () {
+          if (hasReserva) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BoardingPassScreen()),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Você ainda não possui um cartão de embarque.'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        }),
+        _buildMenuButton(Icons.account_circle, 'Perfil', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => isLoggedIn ? const ProfileScreen() : const LoginScreen(),
+            ),
+          ).then((_) => _checkSession());
+        }),
+        _buildMenuButton(Icons.menu, 'Mais', () {
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            builder: (_) => const OpenMenuWidget(),
+          ).then((_) => _checkSession());
+        }),
+      ],
     );
   }
 

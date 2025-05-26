@@ -9,14 +9,14 @@ class SeatMapWidget extends StatefulWidget {
   final void Function(List<String>) onSelectedSeatsChanged;
 
   const SeatMapWidget({
-    Key? key,
+    super.key,
     required this.rows,
     required this.columns,
     required this.onSelectedSeatsChanged,
-  }) : super(key: key);
+  });
 
   @override
-  _SeatMapWidgetState createState() => _SeatMapWidgetState();
+  State<SeatMapWidget> createState() => _SeatMapWidgetState();
 }
 
 class _SeatMapWidgetState extends State<SeatMapWidget> {
@@ -27,12 +27,14 @@ class _SeatMapWidgetState extends State<SeatMapWidget> {
     super.initState();
     seatStatuses = List.generate(
       widget.rows,
-      (_) => List.generate(widget.columns, (_) => SeatStatus.available),
+          (_) => List.generate(widget.columns, (_) => SeatStatus.available),
     );
 
-    // Exemplo: definir alguns assentos como ocupados ou reservados
-    seatStatuses[0][0] = SeatStatus.occupied;
-    seatStatuses[0][1] = SeatStatus.reserved;
+    // Exemplo de inicialização segura
+    if (widget.rows > 0 && widget.columns > 1) {
+      seatStatuses[0][0] = SeatStatus.occupied;
+      seatStatuses[0][1] = SeatStatus.reserved;
+    }
   }
 
   void _onSeatTapped(int row, int col) {
@@ -72,6 +74,8 @@ class _SeatMapWidgetState extends State<SeatMapWidget> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: widget.rows * widget.columns,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: widget.columns,

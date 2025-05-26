@@ -4,24 +4,22 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment="some fixes">
+    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment="commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/android/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/ios/Flutter/Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/ios/Flutter/Debug.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/ios/Flutter/Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/ios/Flutter/Release.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/cancel_board_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/cancel_board_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_detail_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_detail_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/forgot_password_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/forgot_password_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/boarding_pass.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/boarding_pass.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/check_in_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/check_in_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/confirmation_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/confirmation_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_results_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_results_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_search_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/flight_search_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/login_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/payment_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/payment_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/preloading_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/preloading_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/register_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/register_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/seat_select_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/seat_select_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/widgets/open_menu_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/widgets/open_menu_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/macos/Flutter/Flutter-Debug.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/macos/Flutter/Flutter-Debug.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/macos/Flutter/Flutter-Release.xcconfig" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/macos/Flutter/Flutter-Release.xcconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/welcome_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/welcome_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/widgets/seat_map_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/widgets/seat_map_widget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +99,15 @@
       <option name="project" value="LOCAL" />
       <updated>1746476502804</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="commit">
+      <option name="closed" value="true" />
+      <created>1748261996639</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748261996639</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -150,7 +156,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix" />
     <MESSAGE value="some fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
+    <MESSAGE value="commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

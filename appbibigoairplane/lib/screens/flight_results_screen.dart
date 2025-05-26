@@ -18,9 +18,8 @@ class FlightResultsScreen extends StatelessWidget {
     required this.flightClass,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    final mockFlights = List.generate(5, (i) {
+  List<Map<String, String>> _generateMockFlights() {
+    return List.generate(5, (i) {
       final basePrice = 1200 + (i * 150);
       final totalPrice = basePrice * passengers;
       final originalPrice = (totalPrice * 1.15).toStringAsFixed(2);
@@ -40,6 +39,11 @@ class FlightResultsScreen extends StatelessWidget {
         'priceOriginal': originalPrice,
       };
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final flights = _generateMockFlights();
 
     return Scaffold(
       backgroundColor: const Color(0xFFd8eefe),
@@ -50,11 +54,11 @@ class FlightResultsScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: mockFlights.length,
+        itemCount: flights.length,
         itemBuilder: (context, index) {
-          final flight = mockFlights[index];
+          final flight = flights[index];
+
           return Card(
-            color: const Color(0xFFFFFFFF),
             margin: const EdgeInsets.only(bottom: 16),
             elevation: 3,
             shape: RoundedRectangleBorder(
@@ -79,7 +83,7 @@ class FlightResultsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            flight['departureTime'] ?? '00:00',
+                            flight['departureTime'] ?? '--:--',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -99,7 +103,7 @@ class FlightResultsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
-                            flight['arrivalTime'] ?? '00:00',
+                            flight['arrivalTime'] ?? '--:--',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -116,7 +120,7 @@ class FlightResultsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Voo ${flight['flightNumber'] ?? '0000'} Direto",
+                    "Voo ${flight['flightNumber'] ?? ''} Direto",
                     style: const TextStyle(color: Color(0xFF5f6c7b)),
                   ),
                   Text(
@@ -131,14 +135,14 @@ class FlightResultsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "De: R\$ ${flight['priceOriginal'] ?? '0.00'}",
+                            "De: R\$ ${flight['priceOriginal'] ?? '--'}",
                             style: const TextStyle(
                               decoration: TextDecoration.lineThrough,
                               color: Colors.grey,
                             ),
                           ),
                           Text(
-                            "Por: R\$ ${flight['pricePromo'] ?? '0.00'}",
+                            "Por: R\$ ${flight['pricePromo'] ?? '--'}",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

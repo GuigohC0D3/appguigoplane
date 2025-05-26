@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
-import '../screens/payment_screen.dart';
+import 'payment_screen.dart';
 
 class SeatSelectionWidget extends StatefulWidget {
   final double seatPrice;
@@ -21,6 +20,13 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
   final List<String> columns = ['A', 'B', 'C', 'D'];
 
   Future<void> _saveLocallyAndProceed() async {
+    if (selectedSeats.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Selecione ao menos um assento')),
+      );
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
 
     final voo = {
@@ -50,7 +56,6 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
       MaterialPageRoute(
         builder: (_) => PaymentScreen(
           selectedSeats: selectedSeats,
-
           flight: voo,
           passenger: {},
         ),
@@ -69,28 +74,71 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (var row in rows)
-                  for (var col in columns)
-                    _buildSeat('$row$col'),
-              ],
+            const Text(
+              'Assentos disponíveis:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: rows.length,
+                itemBuilder: (context, rowIndex) {
+                  final row = rows[rowIndex];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SeatBox(
+                          id: '$row${columns[0]}',
+                          isOccupied: occupiedSeats.contains('$row${columns[0]}'),
+                          isSelected: selectedSeats.contains('$row${columns[0]}'),
+                          onTap: () => _onSeatTap('$row${columns[0]}'),
+                        ),
+                        const SizedBox(width: 8),
+                        SeatBox(
+                          id: '$row${columns[1]}',
+                          isOccupied: occupiedSeats.contains('$row${columns[1]}'),
+                          isSelected: selectedSeats.contains('$row${columns[1]}'),
+                          onTap: () => _onSeatTap('$row${columns[1]}'),
+                        ),
+                        const SizedBox(width: 32), // Corredor
+                        SeatBox(
+                          id: '$row${columns[2]}',
+                          isOccupied: occupiedSeats.contains('$row${columns[2]}'),
+                          isSelected: selectedSeats.contains('$row${columns[2]}'),
+                          onTap: () => _onSeatTap('$row${columns[2]}'),
+                        ),
+                        const SizedBox(width: 8),
+                        SeatBox(
+                          id: '$row${columns[3]}',
+                          isOccupied: occupiedSeats.contains('$row${columns[3]}'),
+                          isSelected: selectedSeats.contains('$row${columns[3]}'),
+                          onTap: () => _onSeatTap('$row${columns[3]}'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 12),
             Text(
               'Selecionados: ${selectedSeats.join(', ')}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             ElevatedButton(
-              onPressed: selectedSeats.isEmpty ? null : _saveLocallyAndProceed,
+              onPressed: _saveLocallyAndProceed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3da9fc),
                 padding: const EdgeInsets.symmetric(vertical: 16),
+                minimumSize: const Size.fromHeight(50),
               ),
-              child: const Text('Confirmar Assentos', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Confirmar Assentos',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             )
           ],
         ),
@@ -98,15 +146,39 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
     );
   }
 
-  Widget _buildSeat(String id) {
-    final isOccupied = occupiedSeats.contains(id);
-    final isSelected = selectedSeats.contains(id);
+  void _onSeatTap(String id) {
+    if (occupiedSeats.contains(id)) return;
+    setState(() {
+      if (selectedSeats.contains(id)) {
+        selectedSeats.remove(id);
+      } else {
+        selectedSeats.add(id);
+      }
+    });
+  }
+}
 
+class SeatBox extends StatelessWidget {
+  final String id;
+  final bool isOccupied;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const SeatBox({
+    super.key,
+    required this.id,
+    required this.isOccupied,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     Color bgColor;
     BorderSide border;
 
     if (isOccupied) {
-      bgColor = Colors.red;
+      bgColor = Colors.red.shade400;
       border = BorderSide.none;
     } else if (isSelected) {
       bgColor = const Color(0xFF3da9fc);
@@ -117,27 +189,21 @@ class _SeatSelectionWidgetState extends State<SeatSelectionWidget> {
     }
 
     return GestureDetector(
-      onTap: () {
-        if (isOccupied) return;
-
-        setState(() {
-          if (isSelected) {
-            selectedSeats.remove(id);
-          } else {
-            selectedSeats.add(id);
-          }
-        });
-      },
+      onTap: onTap,
       child: Container(
-        width: 50,
-        height: 50,
+        width: 48,
+        height: 48,
         alignment: Alignment.center,
+        margin: const EdgeInsets.symmetric(horizontal: 2),
         decoration: BoxDecoration(
           color: bgColor,
           border: Border.all(width: 2, color: border.color),
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Text(id, style: const TextStyle(fontWeight: FontWeight.bold)),
+        child: Text(
+          id,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
