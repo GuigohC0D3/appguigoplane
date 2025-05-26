@@ -67,7 +67,7 @@ class AeroApp extends StatelessWidget {
             textStyle: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           color: Colors.white,
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -103,7 +103,7 @@ class AeroApp extends StatelessWidget {
             textStyle: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        cardTheme: const CardTheme(
+        cardTheme: const CardThemeData(
           color: Color(0xFF1e1e1e),
           elevation: 2,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(12))),

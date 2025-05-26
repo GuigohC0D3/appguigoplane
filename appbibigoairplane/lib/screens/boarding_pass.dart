@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'cancel_confirmation_screen.dart'; // Sua tela de confirmação
+
 class BoardingPassScreen extends StatefulWidget {
   const BoardingPassScreen({super.key});
 
@@ -39,6 +41,42 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
     } catch (e) {
       setState(() => isError = true);
     }
+  }
+
+  Future<void> _excluirCartao() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('ultima_reserva');
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => const CancelConfirmationScreen(),
+      ),
+    );
+  }
+
+  void _confirmarExclusao() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirmar exclusão'),
+        content: const Text('Deseja realmente excluir o cartão de embarque?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(); // Fecha o diálogo
+              _excluirCartao();
+            },
+            child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -86,7 +124,12 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
             icon: const Icon(Icons.home),
             tooltip: 'Voltar à Home',
             onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/home', (_) => false),
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            tooltip: 'Excluir cartão',
+            onPressed: _confirmarExclusao,
+          ),
         ],
       ),
       backgroundColor: const Color(0xFFf2f2f2),
@@ -106,7 +149,7 @@ class _BoardingPassScreenState extends State<BoardingPassScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // ✅ Cabeçalho Azul - Atualizado
+                // Cabeçalho Azul
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

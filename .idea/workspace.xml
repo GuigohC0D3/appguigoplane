@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment="fix login and others">
+    <list default="true" id="14b2625a-89d4-4468-883d-6ec3711a70f6" name="Changes" comment=" commitbomb">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/boarding_pass.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/boarding_pass.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/confirmation_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/confirmation_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/payment_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/payment_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/appbibigoairplane/lib/screens/seat_select_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/lib/screens/seat_select_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/appbibigoairplane/pubspec.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -91,21 +88,21 @@
       <option name="project" value="LOCAL" />
       <updated>1746476502804</updated>
     </task>
-    <task id="LOCAL-00003" summary="feat: add some functionalities">
+    <task id="LOCAL-00003" summary="commit">
       <option name="closed" value="true" />
-      <created>1748118316106</created>
+      <created>1748261996639</created>
       <option name="number" value="00003" />
       <option name="presentableId" value="LOCAL-00003" />
       <option name="project" value="LOCAL" />
-      <updated>1748118316106</updated>
+      <updated>1748261996639</updated>
     </task>
-    <task id="LOCAL-00004" summary="feat: boarding pass done">
+    <task id="LOCAL-00004" summary=" commitbomb">
       <option name="closed" value="true" />
-      <created>1748201048387</created>
+      <created>1748265465051</created>
       <option name="number" value="00004" />
       <option name="presentableId" value="LOCAL-00004" />
       <option name="project" value="LOCAL" />
-      <updated>1748201048387</updated>
+      <updated>1748265465051</updated>
     </task>
     <option name="localTasksCounter" value="5" />
     <servers />
@@ -156,18 +153,31 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix" />
     <MESSAGE value="some fixes" />
-    <MESSAGE value="Atualizacao dos cards, adicionando calendario de voltas" />
-    <MESSAGE value="feat: add some functionalities" />
-    <MESSAGE value="feat: boarding pass done" />
-    <MESSAGE value="fix login and others" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix login and others" />
+    <MESSAGE value="commit" />
+    <MESSAGE value=" commitbomb" />
+    <option name="LAST_COMMIT_MESSAGE" value=" commitbomb" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/appbibigoairplane/lib/screens/welcome_screen.dart</url>
+          <line>2</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/appbibigoairplane/lib/screens/home_screen.dart</url>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/appbibigoairplane/lib/screens/reservation_search_screen.dart</url>
+          <line>4</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/appbibigoairplane/lib/screens/travel_history_screen.dart</url>
+          <line>3</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
